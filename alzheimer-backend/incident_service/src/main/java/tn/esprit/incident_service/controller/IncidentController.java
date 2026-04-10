@@ -51,17 +51,17 @@ public class IncidentController {
     }
 
     @GetMapping("/incidents/patient/{patientId}")
-    public ResponseEntity<List<Incident>> getByPatient(@PathVariable Long patientId) {
+    public ResponseEntity<List<Incident>> getByPatient(@PathVariable("patientId") Long patientId) {
         return ResponseEntity.ok(incidentService.getActiveIncidentsByPatient(patientId));
     }
 
     @GetMapping("/incidents/patient/{patientId}/history")
-    public ResponseEntity<List<Incident>> getByPatientHistory(@PathVariable Long patientId) {
+    public ResponseEntity<List<Incident>> getByPatientHistory(@PathVariable("patientId") Long patientId) {
         return ResponseEntity.ok(incidentService.getPatientIncidentsHistory(patientId));
     }
 
     @GetMapping("/incidents/caregiver/{caregiverId}")
-    public ResponseEntity<List<Incident>> getByCaregiver(@PathVariable Long caregiverId) {
+    public ResponseEntity<List<Incident>> getByCaregiver(@PathVariable("caregiverId") Long caregiverId) {
         return ResponseEntity.ok(incidentService.getActiveIncidentsByCaregiver(caregiverId));
     }
 
@@ -77,17 +77,17 @@ public class IncidentController {
     }
 
     @PutMapping("/incidents/{id}")
-    public ResponseEntity<Incident> updateIncident(@PathVariable Long id, @RequestBody Incident incident) {
+    public ResponseEntity<Incident> updateIncident(@PathVariable("id") Long id, @RequestBody Incident incident) {
         return ResponseEntity.ok(incidentService.updateIncident(id, incident));
     }
 
     @PatchMapping("/incidents/{id}/status")
-    public ResponseEntity<Incident> updateIncidentStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+    public ResponseEntity<Incident> updateIncidentStatus(@PathVariable("id") Long id, @RequestBody java.util.Map<String, String> body) {
         return ResponseEntity.ok(incidentService.updateIncidentStatus(id, body.get("status")));
     }
 
     @DeleteMapping("/incidents/{id}")
-    public ResponseEntity<Void> deleteIncident(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteIncident(@PathVariable("id") Long id) {
         incidentService.deleteIncident(id);
         return ResponseEntity.noContent().build();
     }
@@ -105,12 +105,12 @@ public class IncidentController {
     }
 
     @PutMapping("/incident-types/{id}")
-    public ResponseEntity<IncidentType> updateType(@PathVariable Long id, @RequestBody IncidentType type) {
+    public ResponseEntity<IncidentType> updateType(@PathVariable("id") Long id, @RequestBody IncidentType type) {
         return ResponseEntity.ok(incidentService.updateIncidentType(id, type));
     }
 
     @DeleteMapping("/incident-types/{id}")
-    public ResponseEntity<Void> deleteType(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteType(@PathVariable("id") Long id) {
         incidentService.deleteIncidentType(id);
         return ResponseEntity.noContent().build();
     }
@@ -118,17 +118,17 @@ public class IncidentController {
     // --- COMMENTS ---
 
     @GetMapping("/incidents/{id}/comments")
-    public ResponseEntity<List<IncidentComment>> getComments(@PathVariable Long id) {
+    public ResponseEntity<List<IncidentComment>> getComments(@PathVariable("id") Long id) {
         return ResponseEntity.ok(incidentService.getCommentsByIncident(id));
     }
 
     @PostMapping("/incidents/{id}/comments")
-    public ResponseEntity<IncidentComment> addComment(@PathVariable Long id, @RequestBody IncidentComment comment) {
+    public ResponseEntity<IncidentComment> addComment(@PathVariable("id") Long id, @RequestBody IncidentComment comment) {
         return new ResponseEntity<>(incidentService.addComment(id, comment), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/incidents/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+    public ResponseEntity<Void> deleteComment(@PathVariable("commentId") Long commentId) {
         incidentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
@@ -146,14 +146,14 @@ public class IncidentController {
     }
 
     @GetMapping("/incidents/patient-stats/{patientId}")
-    public ResponseEntity<PatientStatsDTO> getPatientStatsById(@PathVariable Long patientId) {
+    public ResponseEntity<PatientStatsDTO> getPatientStatsById(@PathVariable("patientId") Long patientId) {
         return ResponseEntity.ok(incidentService.getPatientStatsById(patientId));
     }
 
     // --- SEND PATIENT STATS BY EMAIL (with PDF) ---
     @PostMapping("/incidents/patient-stats/{patientId}/send-email")
     public ResponseEntity<java.util.Map<String, String>> sendPatientStatsByEmail(
-            @PathVariable Long patientId,
+            @PathVariable("patientId") Long patientId,
             @RequestBody java.util.Map<String, String> body) {
         String email = body.get("email");
         if (email == null || email.isBlank()) {

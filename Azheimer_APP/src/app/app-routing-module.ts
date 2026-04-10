@@ -64,6 +64,10 @@ import { IncidentDashboardComponent } from './backoffice/incident-dashboard/inci
 import { IncidentListPage } from './backoffice/incident-full/incident-list-page';
 import { IncidentReportPage } from './backoffice/incident-full/incident-report-page';
 import { ForumAdminPage } from './backoffice/forum-full/forum-admin-page';
+import { ForumEntryComponent } from './frontoffice/module-entry/forum-entry.component';
+import { ActivityEntryComponent } from './frontoffice/module-entry/activity-entry.component';
+import { ForumCommunityPageComponent } from './frontoffice/module-entry/forum-community-page.component';
+import { LocalizationEntryComponent } from './frontoffice/module-entry/localization-entry.component';
 
 const routes: Routes = [
   { path: '', component: Home1 },
@@ -91,11 +95,18 @@ const routes: Routes = [
   { path: 'quiz', component: QuizListComponent },
   { path: 'quiz/player/:id', component: QuizPlayerComponent },
   { path: 'test', component: TestPanelComponent },
-  { path: 'crud/localization', component: LocalizationManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'crud/localization/manage', component: LocalizationManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'crud/localization/movement', component: MovementMonitoringComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT'] } },
+  { path: 'crud/localization', component: LocalizationEntryComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT'] } },
   { path: 'crud/incident', component: IncidentListPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
+  { path: 'crud/incident/list', component: IncidentListPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
   { path: 'crud/incident/new', component: IncidentReportPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
-  { path: 'crud/forum', component: ForumAdminPage, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'crud/activity', component: QuizManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'crud/forum/admin', component: ForumAdminPage, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'crud/forum/community', component: ForumCommunityPageComponent, canActivate: [AuthGuard], data: { roles: ['DOCTOR', 'PATIENT', 'CAREGIVER'] } },
+  { path: 'crud/forum', component: ForumEntryComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
+  { path: 'crud/activity/manage', component: QuizManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'crud/activity/play', component: QuizListComponent, canActivate: [AuthGuard], data: { roles: ['PATIENT', 'CAREGIVER'] } },
+  { path: 'crud/activity', component: ActivityEntryComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
   { path: 'crud/quiz', component: QuizManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
   { path: 'incidents', component: IncidentListPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
   { path: 'incidents/add', component: IncidentReportPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { IncidentIntegrationService } from '../../services/incident-integration.service';
-import { Incident, IncidentType, IncidentComment } from '../../models/incident.model';
+import { Incident, IncidentComment } from '../../models/incident.model';
 
 @Component({
   selector: 'app-incident-list',
@@ -62,6 +62,15 @@ import { Incident, IncidentType, IncidentComment } from '../../models/incident.m
 
       @if (loading) {
         <div style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></div>
+      } @else if (loadError) {
+        <div class="card-alzcare" style="text-align:center;padding:36px">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size:42px;color:#f59e0b;margin-bottom:12px"></i>
+          <p style="color:#0f172a;margin-bottom:12px">{{ loadError }}</p>
+          <button class="btn-primary-alz" (click)="retryLoad()">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Réessayer</span>
+          </button>
+        </div>
       } @else if (filtered.length === 0) {
         <div class="card-alzcare" style="text-align:center;padding:48px">
           <i class="fa-solid fa-inbox" style="font-size:48px;color:#cbd5e1;margin-bottom:16px"></i>
@@ -171,6 +180,7 @@ export class IncidentListPage implements OnInit {
   incidents: Incident[] = [];
   filtered: Incident[] = [];
   loading = true;
+  loadError = '';
   search = '';
   filterSeverity = '';
   isAdmin = false;
@@ -186,34 +196,62 @@ export class IncidentListPage implements OnInit {
     this.loadIncidents();
   }
 
+  retryLoad(): void {
+    this.loadIncidents();
+  }
+
   private loadIncidents(): void {
+    this.loading = true;
+    this.loadError = '';
+
     const role = this.authService.getRole();
     const userId = this.authService.getUserId();
 
     if (role === 'ADMIN' || role === 'DOCTOR') {
-      this.incidentService.getAllActiveIncidents().subscribe(list => this.setIncidents(list));
+      this.incidentService.getAllActiveIncidents().subscribe({
+        next: list => this.setIncidents(list),
+        error: () => this.handleLoadError('Impossible de charger les incidents. Vérifiez le service incident (port 8089).')
+      });
     } else if (role === 'CAREGIVER' && userId) {
       // Load only incidents for the caregiver's own patients
       this.authService.getPatientsByCaregiver(userId).subscribe({
         next: (patients) => {
           const patientIds = patients.map(p => p.userId);
-          this.incidentService.getAllActiveIncidents().subscribe(list => {
-            this.setIncidents(list.filter(i => i.patientId && patientIds.includes(i.patientId)));
+          this.incidentService.getAllActiveIncidents().subscribe({
+            next: list => {
+              this.setIncidents(list.filter(i => i.patientId != null && patientIds.includes(i.patientId)));
+            },
+            error: () => this.handleLoadError('Impossible de charger les incidents actifs du caregiver.')
           });
         },
         error: () => {
-          this.incidentService.getIncidentsByCaregiver(userId).subscribe(list => this.setIncidents(list));
+          this.incidentService.getIncidentsByCaregiver(userId).subscribe({
+            next: list => this.setIncidents(list),
+            error: () => this.handleLoadError('Impossible de charger les incidents du caregiver.')
+          });
         }
       });
     } else if (userId) {
-      this.incidentService.getIncidentsByPatient(userId).subscribe(list => this.setIncidents(list));
+      this.incidentService.getIncidentsByPatient(userId).subscribe({
+        next: list => this.setIncidents(list),
+        error: () => this.handleLoadError('Impossible de charger les incidents du patient.')
+      });
+    } else {
+      this.handleLoadError('Session utilisateur invalide. Reconnectez-vous puis réessayez.');
     }
   }
 
   private setIncidents(list: Incident[]): void {
-    this.incidents = list;
+    this.incidents = list || [];
     this.filterIncidents();
     this.loading = false;
+  }
+
+  private handleLoadError(message: string): void {
+    this.loadError = message;
+    this.loading = false;
+    this.incidents = [];
+    this.filtered = [];
   }
 
   filterIncidents(): void {
