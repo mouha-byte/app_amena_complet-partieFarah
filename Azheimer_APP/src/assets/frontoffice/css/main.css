@@ -324,6 +324,46 @@ h6 {
     left: -100%;
     visibility: visible;
   }
+
+  .navmenu .module-nav-btn a,
+  .navmenu .module-nav-btn a:focus {
+    color: #ffffff;
+    padding: 6px 10px;
+    margin: 0 3px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16);
+    line-height: 1.2;
+  }
+
+  .navmenu .module-nav-localization a,
+  .navmenu .module-nav-localization a:focus {
+    background: linear-gradient(135deg, #0ea5a4, #0284c7);
+  }
+
+  .navmenu .module-nav-forum a,
+  .navmenu .module-nav-forum a:focus {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  }
+
+  .navmenu .module-nav-incident a,
+  .navmenu .module-nav-incident a:focus {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+  }
+
+  .navmenu .module-nav-activity a,
+  .navmenu .module-nav-activity a:focus {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+
+  .navmenu .module-nav-btn a:hover,
+  .navmenu .module-nav-btn a:focus:hover {
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 9px 20px rgba(15, 23, 42, 0.22);
+  }
 }
 
 /* Navmenu - Mobile */
@@ -450,6 +490,13 @@ h6 {
 
   .mobile-nav-active .navmenu>ul {
     display: block;
+  }
+
+  .navmenu .module-nav-btn a,
+  .navmenu .module-nav-btn a:focus {
+    margin: 2px 0;
+    width: 100%;
+    justify-content: center;
   }
 }
 

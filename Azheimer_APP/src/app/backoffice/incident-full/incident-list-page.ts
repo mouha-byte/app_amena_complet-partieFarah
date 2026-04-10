@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { IncidentIntegrationService } from '../../services/incident-integration.service';
 import { Incident, IncidentType, IncidentComment } from '../../models/incident.model';
@@ -8,7 +9,7 @@ import { Incident, IncidentType, IncidentComment } from '../../models/incident.m
 @Component({
   selector: 'app-incident-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   styles: [`
     :host {
       display: block;
@@ -44,6 +45,10 @@ import { Incident, IncidentType, IncidentComment } from '../../models/incident.m
           <p style="color:#0f172a;font-size:14px">{{ incidents.length }} incident(s) trouvé(s)</p>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
+          <a routerLink="/crud/incident/new" class="btn-primary-alz" style="padding:10px 14px;display:inline-flex;align-items:center;gap:8px;text-decoration:none">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nouveau</span>
+          </a>
           <input class="form-input" style="width:250px" [(ngModel)]="search" placeholder="Rechercher..." (input)="filterIncidents()">
           <select class="form-select" style="width:150px" [(ngModel)]="filterSeverity" (change)="filterIncidents()">
             <option value="">Toutes sévérités</option>

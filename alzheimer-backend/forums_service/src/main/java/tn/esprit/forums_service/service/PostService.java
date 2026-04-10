@@ -21,6 +21,14 @@ public class PostService {
     public Post createPost(Post post, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+
+        // Community posts are intentionally anonymous and not linked to a person.
+        // The DB column is currently NOT NULL, so use a technical id for anonymous posts.
+        post.setUserId(0L);
+        if (post.getAuthor() == null || post.getAuthor().isBlank()) {
+            post.setAuthor("Anonyme");
+        }
+
         post.setCategory(category);
         applyModeration(post);
         return postRepository.save(post);

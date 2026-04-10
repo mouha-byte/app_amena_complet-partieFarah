@@ -61,6 +61,9 @@ import { LocalizationManagementComponent } from './officiel/localization-managem
 import { MovementMonitoringComponent } from './officiel/movement-monitoring/movement-monitoring.component';
 import { ForumDashboardComponent } from './backoffice/forum-dashboard/forum-dashboard.component';
 import { IncidentDashboardComponent } from './backoffice/incident-dashboard/incident-dashboard.component';
+import { IncidentListPage } from './backoffice/incident-full/incident-list-page';
+import { IncidentReportPage } from './backoffice/incident-full/incident-report-page';
+import { ForumAdminPage } from './backoffice/forum-full/forum-admin-page';
 
 const routes: Routes = [
   { path: '', component: Home1 },
@@ -88,6 +91,14 @@ const routes: Routes = [
   { path: 'quiz', component: QuizListComponent },
   { path: 'quiz/player/:id', component: QuizPlayerComponent },
   { path: 'test', component: TestPanelComponent },
+  { path: 'crud/localization', component: LocalizationManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'crud/incident', component: IncidentListPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
+  { path: 'crud/incident/new', component: IncidentReportPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
+  { path: 'crud/forum', component: ForumAdminPage, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'crud/activity', component: QuizManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'crud/quiz', component: QuizManagementComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
+  { path: 'incidents', component: IncidentListPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
+  { path: 'incidents/add', component: IncidentReportPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
   { path: 'admin', component: Home2, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] } },
   { path: 'admin/activities', component: ActivitiesPage, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'DOCTOR'] } },
   { path: 'admin/calendar', component: CalendarPage, canActivate: [AuthGuard] },

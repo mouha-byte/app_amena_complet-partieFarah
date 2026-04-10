@@ -16,21 +16,21 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200") // Allow Angular Frontend
+@CrossOrigin(originPatterns = {"http://localhost:*", "http://127.0.0.1:*"})
 public class PostController {
 
     private final PostService postService;
     private final CommentRepository commentRepository;
 
     @PostMapping("/category/{categoryId}")
-    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody Post post, @PathVariable Long categoryId) {
+    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody Post post, @PathVariable("categoryId") Long categoryId) {
         Post created = postService.createPost(post, categoryId);
         PostDTO dto = PostDTO.builder()
                 .id(created.getId())
                 .title(created.getTitle())
                 .content(created.getContent())
                 .userId(created.getUserId())
-                .author(created.getAuthor() != null ? created.getAuthor() : "User " + created.getUserId())
+                .author(resolveAuthor(created))
                 .createdAt(created.getCreatedAt())
                 .categoryId(created.getCategory() != null ? created.getCategory().getId() : null)
                 .categoryName(created.getCategory() != null ? created.getCategory().getName() : "General")
@@ -62,7 +62,7 @@ public class PostController {
                     .title(post.getTitle())
                     .content(post.getContent())
                     .userId(post.getUserId())
-                    .author(post.getAuthor() != null ? post.getAuthor() : "User " + post.getUserId())
+                    .author(resolveAuthor(post))
                     .createdAt(post.getCreatedAt())
                     .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
                     .categoryName(post.getCategory() != null ? post.getCategory().getName() : "General")
@@ -79,7 +79,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDTO> getPostById(@PathVariable Long id) {
+    public ResponseEntity<PostDTO> getPostById(@PathVariable("id") Long id) {
         System.out.println(">>> Request: getPostById - ID: " + id);
         Post post = postService.getPostById(id);
         System.out.println(">>> Found post: " + (post != null ? post.getTitle() : "NULL"));
@@ -96,7 +96,7 @@ public class PostController {
             .title(post.getTitle())
             .content(post.getContent())
             .userId(post.getUserId())
-            .author(post.getAuthor() != null ? post.getAuthor() : "User " + post.getUserId())
+            .author(resolveAuthor(post))
             .createdAt(post.getCreatedAt())
             .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
             .categoryName(post.getCategory() != null ? post.getCategory().getName() : "General")
@@ -111,14 +111,14 @@ public class PostController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<PostDTO> getPostsByCategoryId(@PathVariable Long categoryId) {
+    public List<PostDTO> getPostsByCategoryId(@PathVariable("categoryId") Long categoryId) {
         return postService.getPostsByCategoryId(categoryId).stream()
             .map(post -> PostDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .userId(post.getUserId())
-                .author(post.getAuthor() != null ? post.getAuthor() : "User " + post.getUserId())
+                .author(resolveAuthor(post))
                 .createdAt(post.getCreatedAt())
                 .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
                 .categoryName(post.getCategory() != null ? post.getCategory().getName() : "General")
@@ -130,13 +130,23 @@ public class PostController {
             .collect(Collectors.toList());
     }
 
+    private String resolveAuthor(Post post) {
+        if (post.getAuthor() != null && !post.getAuthor().isBlank()) {
+            return post.getAuthor();
+        }
+        if (post.getUserId() != null && post.getUserId() > 0) {
+            return "User " + post.getUserId();
+        }
+        return "Anonyme";
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable Long id, @RequestBody Post postDetails) {
+    public ResponseEntity<Post> updatePost(@PathVariable("id") Long id, @RequestBody Post postDetails) {
         return ResponseEntity.ok(postService.updatePost(id, postDetails));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePost(@PathVariable("id") Long id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
