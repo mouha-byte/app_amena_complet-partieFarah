@@ -9,12 +9,39 @@ import { Incident, IncidentType, IncidentComment } from '../../models/incident.m
   selector: 'app-incident-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .table-alzcare thead th {
+      color: #334155;
+      font-weight: 700;
+    }
+
+    :host .table-alzcare tbody td {
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
         <div>
-          <h1 style="font-size:24px;font-weight:700">Incidents actifs</h1>
-          <p style="color:#64748b;font-size:14px">{{ incidents.length }} incident(s) trouvé(s)</p>
+          <h1 style="font-size:24px;font-weight:700;color:#0f172a">Incidents actifs</h1>
+          <p style="color:#0f172a;font-size:14px">{{ incidents.length }} incident(s) trouvé(s)</p>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
           <input class="form-input" style="width:250px" [(ngModel)]="search" placeholder="Rechercher..." (input)="filterIncidents()">
@@ -33,7 +60,7 @@ import { Incident, IncidentType, IncidentComment } from '../../models/incident.m
       } @else if (filtered.length === 0) {
         <div class="card-alzcare" style="text-align:center;padding:48px">
           <i class="fa-solid fa-inbox" style="font-size:48px;color:#cbd5e1;margin-bottom:16px"></i>
-          <p style="color:#64748b">Aucun incident trouvé</p>
+          <p style="color:#0f172a">Aucun incident trouvé</p>
         </div>
       } @else {
         <div class="card-alzcare" style="padding:0;overflow:hidden">

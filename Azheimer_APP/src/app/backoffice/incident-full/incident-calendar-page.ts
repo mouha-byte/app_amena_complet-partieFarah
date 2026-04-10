@@ -200,6 +200,23 @@ interface CalendarDay {
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+
     .cal-nav-btn:hover { background: #f1f5f9 !important; border-color: #c7d2fe !important; color: #4f46e5 !important; }
     .cal-day-active:hover { background: #f1f5f9 !important; }
     .cal-day-selected { box-shadow: inset 0 0 0 2px #6366f1; background: #eef2ff !important; }

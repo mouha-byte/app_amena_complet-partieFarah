@@ -8,12 +8,41 @@ import { IncidentType } from '../../models/incident.model';
   selector: 'app-incident-types',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .table-alzcare thead th {
+      color: #334155;
+      font-weight: 700;
+    }
+
+    :host .table-alzcare tbody td {
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select,
+    :host textarea.form-input {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder,
+    :host textarea.form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
         <div>
-          <h1 style="font-size:24px;font-weight:700">Types d'incidents</h1>
-          <p style="color:#64748b;font-size:14px">Gérer les catégories d'incidents</p>
+          <h1 style="font-size:24px;font-weight:700;color:#0f172a">Types d'incidents</h1>
+          <p style="color:#0f172a;font-size:14px">Gérer les catégories d'incidents</p>
         </div>
         <button class="btn-primary-alz" (click)="openForm()">
           <i class="fa-solid fa-plus"></i> Nouveau type

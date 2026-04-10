@@ -64,7 +64,7 @@ import { PatientStats } from '../../models/incident.model';
       <!-- Loading -->
       <div *ngIf="loading" style="text-align:center;padding:80px">
         <div class="spinner" style="margin:0 auto;width:48px;height:48px"></div>
-        <p style="color:#64748b;margin-top:16px;font-size:14px">Chargement des statistiques...</p>
+        <p style="color:#0f172a;margin-top:16px;font-size:14px">Chargement des statistiques...</p>
       </div>
 
       <!-- No data -->
@@ -270,7 +270,7 @@ import { PatientStats } from '../../models/incident.model';
       <!-- No results for filter -->
       <div *ngIf="!loading && stats.length > 0 && filteredStats.length === 0" style="text-align:center;padding:48px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">
         <i class="fa-solid fa-filter-circle-xmark" style="font-size:40px;color:#cbd5e1;margin-bottom:12px"></i>
-        <p style="color:#64748b">Aucun patient ne correspond à vos critères</p>
+        <p style="color:#0f172a">Aucun patient ne correspond à vos critères</p>
       </div>
 
       <!-- Email Modal -->
@@ -321,6 +321,23 @@ import { PatientStats } from '../../models/incident.model';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+
     .patient-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 30px rgba(0,0,0,0.1);

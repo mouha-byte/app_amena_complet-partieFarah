@@ -29,7 +29,7 @@ export interface ForumPost {
   id: number;
   title: string;
   content: string;
-  userId: number;
+  userId?: number;
   author?: string;
   createdAt: string;
   categoryId: number;
@@ -87,7 +87,7 @@ export class ForumIntegrationService {
     return this.http.get<ForumPost[]>(`${this.apiUrl}/posts/category/${categoryId}`);
   }
 
-  createPost(post: { title: string; content: string; userId: number }, categoryId: number): Observable<ForumPost> {
+  createPost(post: { title: string; content: string; userId?: number | null; author?: string }, categoryId: number): Observable<ForumPost> {
     return this.http.post<ForumPost>(`${this.apiUrl}/posts/category/${categoryId}`, post);
   }
 

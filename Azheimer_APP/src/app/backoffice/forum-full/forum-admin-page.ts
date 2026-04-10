@@ -7,10 +7,39 @@ import { ForumIntegrationService } from '../../services/forum-integration.servic
   selector: 'app-forum-admin',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .table-alzcare thead th {
+      color: #334155;
+      font-weight: 700;
+    }
+
+    :host .table-alzcare tbody td {
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select,
+    :host textarea.form-input {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder,
+    :host textarea.form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div>
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Gestion du Forum</h1>
-      <p style="color:#64748b;font-size:14px;margin-bottom:24px">Administrer les catégories, publications et commentaires</p>
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px;color:#0f172a">Gestion du Forum</h1>
+      <p style="color:#0f172a;font-size:14px;margin-bottom:24px">Administrer les catégories, publications et commentaires</p>
 
       <!-- Tabs -->
       <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid #e2e8f0;flex-wrap:wrap">

@@ -9,16 +9,43 @@ import { Incident, IncidentComment, IncidentType } from '../../models/incident.m
   selector: 'app-incident-reported',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .table-alzcare thead th {
+      color: #334155;
+      font-weight: 700;
+    }
+
+    :host .table-alzcare tbody td {
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div>
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Incidents signalés</h1>
-      <p style="color:#64748b;font-size:14px;margin-bottom:24px">Incidents soumis par les aidants et patients</p>
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px;color:#0f172a">Incidents signalés</h1>
+      <p style="color:#0f172a;font-size:14px;margin-bottom:24px">Incidents soumis par les aidants et patients</p>
 
       @if (loading) {
         <div style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></div>
       } @else if (incidents.length === 0) {
         <div class="card-alzcare" style="text-align:center;padding:48px">
-          <p style="color:#64748b">Aucun incident signalé</p>
+          <p style="color:#0f172a">Aucun incident signalé</p>
         </div>
       } @else {
         <div class="card-alzcare" style="padding:0;overflow-x:auto">

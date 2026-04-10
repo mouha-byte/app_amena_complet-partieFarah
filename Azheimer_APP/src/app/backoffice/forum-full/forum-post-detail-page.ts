@@ -8,9 +8,29 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-forum-post-detail',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select,
+    :host textarea.form-input {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder,
+    :host textarea.form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div style="max-width:800px">
-      <button type="button" (click)="back.emit()" style="color:#64748b;text-decoration:none;font-size:14px;display:inline-block;margin-bottom:16px;background:none;border:none;padding:0">
+      <button type="button" (click)="back.emit()" style="color:#0f172a;text-decoration:none;font-size:14px;display:inline-block;margin-bottom:16px;background:none;border:none;padding:0">
         <i class="fa-solid fa-arrow-left"></i> Retour au forum
       </button>
 
@@ -18,12 +38,12 @@ import { AuthService } from '../../services/auth.service';
         <div style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></div>
       } @else if (post) {
         <div class="card-alzcare" style="margin-bottom:24px">
-          <h1 style="font-size:22px;font-weight:700;margin-bottom:8px">{{ post.title }}</h1>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:16px">
+          <h1 style="font-size:22px;font-weight:700;margin-bottom:8px;color:#0f172a">{{ post.title }}</h1>
+          <div style="font-size:13px;color:#334155;margin-bottom:16px">
             <i class="fa-regular fa-clock"></i> {{ post.createdAt | date:'dd/MM/yyyy à HH:mm' }}
             · Utilisateur #{{ post.userId }}
           </div>
-          <p style="font-size:15px;line-height:1.7;color:#374151;white-space:pre-wrap">{{ post.content }}</p>
+          <p style="font-size:15px;line-height:1.7;color:#0f172a;white-space:pre-wrap">{{ post.content }}</p>
 
           <!-- Post Like -->
           <div style="margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:12px">

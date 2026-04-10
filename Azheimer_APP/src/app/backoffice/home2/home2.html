@@ -327,12 +327,20 @@
           </li>
           <li class="nav-item" *ngIf="canAccessForumDashboard" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Forum">
             <a class="menu-link" href="#forumTab" role="tab" aria-controls="forumTab" aria-selected="false" data-bs-toggle="tab" (click)="openForum()">
-              <i class="fi fi-rr-comments"></i>
+              <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 10.5H16" stroke="var(--bs-heading-color)" stroke-width="2" stroke-linecap="round"></path>
+                <path d="M8 14H13" stroke="var(--bs-heading-color)" stroke-width="2" stroke-linecap="round"></path>
+                <path d="M12 3C16.9706 3 21 6.35786 21 10.5C21 12.4927 20.0678 14.3038 18.5451 15.6468C18.3158 15.849 18.1598 16.1212 18.1355 16.4158L17.9934 18.1387C17.9574 18.5765 17.5032 18.8434 17.099 18.6789L14.8507 17.7641C14.5849 17.6559 14.2928 17.6385 14.0168 17.7107C13.3627 17.8818 12.6896 18 12 18C7.02944 18 3 14.6421 3 10.5C3 6.35786 7.02944 3 12 3Z" stroke="var(--bs-heading-color)" stroke-width="2"></path>
+              </svg>
             </a>
           </li>
           <li class="nav-item" *ngIf="canAccessIncidentDashboard" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Incident">
             <a class="menu-link" href="#incidentTab" role="tab" aria-controls="incidentTab" aria-selected="false" data-bs-toggle="tab" (click)="openIncident()">
-              <i class="fi fi-rr-triangle-warning"></i>
+              <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.2767 3.71295C11.0509 2.37004 12.9491 2.37004 13.7233 3.71295L21.1155 16.5341C21.8873 17.8729 20.9211 19.5469 19.3684 19.5469H4.63158C3.07891 19.5469 2.11266 17.8729 2.88449 16.5341L10.2767 3.71295Z" stroke="var(--bs-heading-color)" stroke-width="2"></path>
+                <path d="M12 8.5V13" stroke="var(--bs-heading-color)" stroke-width="2" stroke-linecap="round"></path>
+                <circle cx="12" cy="16" r="1" fill="var(--bs-heading-color)"></circle>
+              </svg>
             </a>
           </li>
           <li class="nav-item-hr"></li>

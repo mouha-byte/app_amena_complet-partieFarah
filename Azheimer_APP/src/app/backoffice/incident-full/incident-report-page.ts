@@ -10,10 +10,35 @@ import { User } from '../../models/user.model';
   selector: 'app-incident-report',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .form-label {
+      color: #0f172a !important;
+      font-weight: 600;
+    }
+
+    :host .form-input,
+    :host .form-select,
+    :host textarea.form-input {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder,
+    :host textarea.form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div style="max-width:640px">
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Signaler un incident</h1>
-      <p style="color:#64748b;font-size:14px;margin-bottom:24px">Remplissez le formulaire pour déclarer un nouvel incident</p>
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px;color:#0f172a">Signaler un incident</h1>
+      <p style="color:#0f172a;font-size:14px;margin-bottom:24px">Remplissez le formulaire pour déclarer un nouvel incident</p>
 
       @if (success) {
         <div class="alert-success" style="margin-bottom:16px">
@@ -38,7 +63,7 @@ import { User } from '../../models/user.model';
                 }
               </select>
             } @else {
-              <p style="color:#94a3b8;font-size:13px;padding:8px 0">Chargement des patients...</p>
+              <p style="color:#0f172a;font-size:13px;padding:8px 0">Chargement des patients...</p>
             }
           </div>
         }
@@ -46,7 +71,7 @@ import { User } from '../../models/user.model';
         <div class="form-group">
           <label class="form-label">Type d'incident *</label>
           <input class="form-input" [(ngModel)]="form.typeName" placeholder="Ex: Chute, Fugue, Oubli de médicament, Agitation...">
-          <span style="font-size:12px;color:#94a3b8;margin-top:4px;display:block">Décrivez le type d'incident</span>
+          <span style="font-size:12px;color:#0f172a;margin-top:4px;display:block">Décrivez le type d'incident</span>
         </div>
 
         <div class="form-group">

@@ -39,3 +39,115 @@
 	gap: 0.6rem;
 	flex-wrap: wrap;
 }
+
+/* Keep the integrated backoffice workspace dark in both light and dark theme modes. */
+.page-layout .app-wrapper {
+	background: radial-gradient(circle at top right, #1b2436 0%, #0f172a 35%, #0b1120 100%);
+	color: #e5e7eb;
+}
+
+.page-layout .app-wrapper .app-page-head .breadcrumb-item a,
+.page-layout .app-wrapper .app-page-head .breadcrumb-item.active {
+	color: #cbd5e1;
+}
+
+.integrated-workspace {
+	--workspace-surface-1: #111827;
+	--workspace-surface-2: #0b1220;
+	--workspace-border: #334155;
+	--workspace-text: #e5e7eb;
+	--workspace-muted: #9fb0c6;
+}
+
+.integrated-workspace .card,
+.integrated-workspace .card-alzcare,
+.integrated-workspace .module-bridge-card {
+	background: linear-gradient(160deg, var(--workspace-surface-1), var(--workspace-surface-2));
+	border: 1px solid var(--workspace-border);
+	color: var(--workspace-text);
+	box-shadow: 0 14px 28px rgba(3, 7, 18, 0.28);
+}
+
+.integrated-workspace h1,
+.integrated-workspace h2,
+.integrated-workspace h3,
+.integrated-workspace h4,
+.integrated-workspace h5,
+.integrated-workspace h6 {
+	color: #f8fafc;
+}
+
+.integrated-workspace p,
+.integrated-workspace .text-body,
+.integrated-workspace .form-label,
+.integrated-workspace small {
+	color: var(--workspace-muted);
+}
+
+.integrated-workspace .form-input,
+.integrated-workspace .form-select,
+.integrated-workspace textarea,
+.integrated-workspace input {
+	background: #0a1220 !important;
+	border: 1px solid var(--workspace-border) !important;
+	color: #e2e8f0 !important;
+}
+
+.integrated-workspace .form-input::placeholder,
+.integrated-workspace textarea::placeholder {
+	color: #7f92aa !important;
+}
+
+.integrated-workspace .form-select option {
+	background: #0a1220;
+	color: #e2e8f0;
+}
+
+.integrated-workspace .form-input:focus,
+.integrated-workspace .form-select:focus,
+.integrated-workspace textarea:focus,
+.integrated-workspace input:focus {
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.24);
+}
+
+.integrated-workspace .table-alzcare thead th {
+	background: #0a1220 !important;
+	color: #e5edf8 !important;
+	border-color: #2b3648 !important;
+}
+
+.integrated-workspace .table-alzcare tbody td {
+	background: #0f172a !important;
+	color: #e2e8f0 !important;
+	border-color: #2b3648 !important;
+}
+
+.integrated-workspace .table-alzcare tbody tr:nth-child(odd) td {
+	background: #111c2f !important;
+}
+
+.integrated-workspace .table-alzcare tbody tr:nth-child(even) td {
+	background: #0f172a !important;
+}
+
+.integrated-workspace .table-alzcare tbody tr:hover td {
+	background: #17263d !important;
+}
+
+.integrated-workspace .table-alzcare tbody td,
+.integrated-workspace .table-alzcare tbody td span:not(.badge-alz),
+.integrated-workspace .table-alzcare tbody td p {
+	color: #e2e8f0;
+}
+
+.integrated-workspace .btn-secondary-alz {
+	background: #1f2937;
+	color: #e5e7eb;
+	border: 1px solid #374151;
+}
+
+.integrated-workspace .btn-secondary-alz:hover {
+	background: #283548;
+	border-color: #475569;
+}

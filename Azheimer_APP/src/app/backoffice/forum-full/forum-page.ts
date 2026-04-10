@@ -6,10 +6,21 @@ import { ForumIntegrationService } from '../../services/forum-integration.servic
   selector: 'app-forum-page',
   standalone: true,
   imports: [CommonModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .card-alzcare h3,
+    :host .card-alzcare p {
+      color: #0f172a;
+    }
+  `],
   template: `
     <div>
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Forum communautaire</h1>
-      <p style="color:#64748b;font-size:14px;margin-bottom:24px">Échangez avec la communauté AlzCare</p>
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px;color:#0f172a">Forum communautaire</h1>
+      <p style="color:#0f172a;font-size:14px;margin-bottom:24px">Échangez avec la communauté AlzCare</p>
 
       @if (loading) {
         <div style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></div>
@@ -24,7 +35,7 @@ import { ForumIntegrationService } from '../../services/forum-integration.servic
                   </div>
                   <h3 style="font-size:16px;font-weight:600">{{ cat.name }}</h3>
                 </div>
-                <p style="font-size:14px;color:#64748b;line-height:1.5">{{ cat.description || 'Discussion générale' }}</p>
+                <p style="font-size:14px;color:#0f172a;line-height:1.5">{{ cat.description || 'Discussion générale' }}</p>
               </div>
             </button>
           }
@@ -33,7 +44,7 @@ import { ForumIntegrationService } from '../../services/forum-integration.servic
         @if (categories.length === 0) {
           <div class="card-alzcare" style="text-align:center;padding:48px">
             <i class="fa-solid fa-comments" style="font-size:48px;color:#cbd5e1;margin-bottom:16px"></i>
-            <p style="color:#64748b">Aucune catégorie disponible</p>
+            <p style="color:#0f172a">Aucune catégorie disponible</p>
           </div>
         }
       }

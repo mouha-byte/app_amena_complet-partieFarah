@@ -9,10 +9,37 @@ import { Incident } from '../../models/incident.model';
   selector: 'app-incident-history',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    :host {
+      display: block;
+      color: #0f172a;
+    }
+
+    :host .table-alzcare thead th {
+      color: #334155;
+      font-weight: 700;
+    }
+
+    :host .table-alzcare tbody td {
+      color: #0f172a;
+    }
+
+    :host .form-input,
+    :host .form-select {
+      color: #0f172a !important;
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    :host .form-input::placeholder {
+      color: #475569 !important;
+      opacity: 1;
+    }
+  `],
   template: `
     <div>
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Historique des incidents</h1>
-      <p style="color:#64748b;font-size:14px;margin-bottom:24px">Tous les incidents passés et actuels</p>
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px;color:#0f172a">Historique des incidents</h1>
+      <p style="color:#0f172a;font-size:14px;margin-bottom:24px">Tous les incidents passés et actuels</p>
 
       <div style="margin-bottom:16px">
         <input class="form-input" style="max-width:300px" [(ngModel)]="search" placeholder="Rechercher..." (input)="filter()">
@@ -23,7 +50,7 @@ import { Incident } from '../../models/incident.model';
       } @else if (filtered.length === 0) {
         <div class="card-alzcare" style="text-align:center;padding:48px">
           <i class="fa-solid fa-folder-open" style="font-size:48px;color:#cbd5e1;margin-bottom:16px"></i>
-          <p style="color:#64748b">Aucun historique disponible</p>
+          <p style="color:#0f172a">Aucun historique disponible</p>
         </div>
       } @else {
         <div class="card-alzcare" style="padding:0;overflow-x:auto">
