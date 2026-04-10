@@ -1,0 +1,78 @@
+<header id="header" class="header d-flex align-items-center fixed-top">
+  <div class="container position-relative d-flex align-items-center justify-content-between">
+
+    <a routerLink="/" class="logo d-flex align-items-center me-auto me-xl-0">
+      <!-- Uncomment the line below if you also wish to use an image logo -->
+      <!-- <img src="assets/frontoffice/img/logo.webp" alt=""> -->
+      <h1 class="sitename">Medi<span>Nest</span></h1>
+    </a>
+
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a routerLink="/" class="active">Home</a></li>
+        <li><a routerLink="/about">About</a></li>
+
+        <li><a routerLink="/services">Services</a></li>
+        <li><a routerLink="/forum">Forum</a></li>
+        <li><a routerLink="/doctors">Doctors</a></li>
+        <li class="dropdown"><a href="#"><span>INCIDENTS</span> <i class="ri-arrow-down-s-line toggle-dropdown"></i></a>
+          <ul>
+            <li><a routerLink="/incidents/report"><i class="ri-error-warning-line me-2"></i>Signaler</a></li>
+            <li><a routerLink="/incidents"><i class="ri-list-check me-2"></i>Mes Incidents</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#"><span>More Pages</span> <i
+              class="ri-arrow-down-s-line toggle-dropdown"></i></a>
+          <ul>
+            <li><a routerLink="/department-details">Department Details</a></li>
+            <li><a routerLink="/service-details">Service Details</a></li>
+            <li><a routerLink="/appointment">Appointment</a></li>
+            <li><a routerLink="/testimonials">Testimonials</a></li>
+            <li><a routerLink="/faq">Frequently Asked Questions</a></li>
+            <li><a routerLink="/gallery">Gallery</a></li>
+            <li><a routerLink="/terms">Terms</a></li>
+            <li><a routerLink="/privacy">Privacy</a></li>
+            <li><a routerLink="/404">404</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="ri-arrow-down-s-line toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="#">Dropdown 1</a></li>
+            <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i
+                  class="ri-arrow-down-s-line toggle-dropdown"></i></a>
+              <ul>
+                <li><a href="#">Deep Dropdown 1</a></li>
+                <li><a href="#">Deep Dropdown 2</a></li>
+                <li><a href="#">Deep Dropdown 3</a></li>
+                <li><a href="#">Deep Dropdown 4</a></li>
+                <li><a href="#">Deep Dropdown 5</a></li>
+              </ul>
+            </li>
+            <li><a href="#">Dropdown 2</a></li>
+            <li><a href="#">Dropdown 3</a></li>
+            <li><a href="#">Dropdown 4</a></li>
+          </ul>
+        </li>
+        <li><a routerLink="/contact">Contact</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none ri-menu-line"></i>
+    </nav>
+
+    <!-- Not logged in -->
+    <ng-container *ngIf="!authService.isLoggedIn()">
+      <a class="btn-getstarted me-2" routerLink="/login">Connexion</a>
+    </ng-container>
+
+    <!-- Logged in -->
+    <ng-container *ngIf="authService.isLoggedIn()">
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small d-none d-md-inline">
+          {{ authService.getFullName() }} ({{ authService.getRole() }})
+        </span>
+        <a *ngIf="authService.getRole() === 'DOCTOR' || authService.isAdmin()" class="btn-getstarted me-2" routerLink="/dashboard">Dashboard</a>
+        <button class="btn btn-sm btn-outline-danger" (click)="logout()">Déconnexion</button>
+      </div>
+    </ng-container>
+
+  </div>
+</header>

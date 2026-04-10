@@ -1,0 +1,141 @@
+<section class="monitor-shell">
+  <header class="hero-card">
+    <div class="hero-copy">
+      <h2>Suivi de localisation patient</h2>
+      <p *ngIf="isPatient">Votre position GPS peut etre envoyee automatiquement pour le suivi medical.</p>
+      <p *ngIf="!isPatient">Visualisez les mouvements patients, alertes actives et historique recent.</p>
+    </div>
+
+    <div class="hero-actions">
+      <span class="status-pill" [class.offline]="backendOffline">
+        {{ backendOffline ? 'Service offline' : 'Service online' }}
+      </span>
+      <button type="button" class="btn ghost" (click)="refresh()" [disabled]="loading">
+        {{ loading ? 'Chargement...' : 'Rafraichir' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="flash" *ngIf="msg" [ngClass]="msgType">{{ msg }}</div>
+
+  <article class="offline-card" *ngIf="backendOffline">
+    <strong>Connexion au service movement indisponible</strong>
+    <p>{{ offlineReason || 'Demarrez movement_service sur le port 8082 puis reessayez.' }}</p>
+    <button type="button" class="btn primary" (click)="retryConnection()">Reessayer la connexion</button>
+  </article>
+
+  <article class="picker-card" *ngIf="isAdminOrDoctor">
+    <label for="patientSelect">Patient suivi</label>
+    <select id="patientSelect" [(ngModel)]="selectedPatientId" (ngModelChange)="onPatientChange()">
+      <option *ngFor="let p of patients" [ngValue]="p.id">{{ p.firstname }} {{ p.lastname }} (#{{ p.id }})</option>
+    </select>
+  </article>
+
+  <div class="cards-grid">
+    <article class="card latest-card">
+      <h3>Derniere position</h3>
+
+      <div *ngIf="latestLocation; else noLoc">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span>Latitude</span>
+            <strong>{{ latestLocation.latitude }}</strong>
+          </div>
+          <div class="stat-item">
+            <span>Longitude</span>
+            <strong>{{ latestLocation.longitude }}</strong>
+          </div>
+          <div class="stat-item">
+            <span>Precision</span>
+            <strong>{{ latestLocation.accuracyMeters || '-' }} m</strong>
+          </div>
+          <div class="stat-item">
+            <span>Vitesse</span>
+            <strong>{{ latestLocation.speedKmh || 0 }} km/h</strong>
+          </div>
+        </div>
+
+        <p class="meta-row">
+          <span>Horodatage: {{ latestLocation.recordedAt }}</span>
+          <span *ngIf="latestLocation.source">Source: {{ latestLocation.source }}</span>
+        </p>
+        <a class="osm-link" [href]="mapLink" target="_blank" rel="noopener">Ouvrir dans OpenStreetMap</a>
+      </div>
+
+      <ng-template #noLoc>
+        <p class="empty">Aucune position disponible pour le moment.</p>
+      </ng-template>
+    </article>
+
+    <article class="card action-card" *ngIf="isPatient">
+      <h3>Envoyer ma position</h3>
+      <p class="hint">Le patient partage sa position. Le docteur et l'admin sont en mode consultation uniquement.</p>
+      <button type="button" class="btn primary" (click)="reportMyLiveGps()" [disabled]="reporting || backendOffline">
+        {{ reporting ? 'Envoi en cours...' : 'Envoyer ma position GPS' }}
+      </button>
+    </article>
+
+    <article class="card alert-card">
+      <div class="card-head">
+        <h3>Alertes actives</h3>
+        <span class="badge">{{ alerts.length }}</span>
+      </div>
+
+      <div class="alert-list" *ngIf="alerts.length; else noAlerts">
+        <div class="alert-row" *ngFor="let a of alerts" [ngClass]="getAlertClass(a)">
+          <div>
+            <strong>{{ a.alertType }}</strong>
+            <p>{{ a.message }}</p>
+            <small>Patient #{{ a.patientId }} - {{ a.createdAt }}</small>
+          </div>
+          <div class="alert-actions" *ngIf="isAdminOrDoctor">
+            <button
+              type="button"
+              class="btn whatsapp"
+              (click)="notifyPatientWhatsApp(a)"
+              [disabled]="sendingWhatsappAlertId === a.id"
+            >
+              {{ sendingWhatsappAlertId === a.id ? 'Preparation...' : 'WhatsApp patient' }}
+            </button>
+            <button type="button" class="btn dark" *ngIf="!a.acknowledged" (click)="acknowledge(a)">
+              Acquitter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noAlerts>
+        <p class="empty">Aucune alerte en attente.</p>
+      </ng-template>
+    </article>
+
+    <article class="card history-card">
+      <h3>Historique recent (4h)</h3>
+
+      <div class="table-wrap" *ngIf="history.length; else noHistory">
+        <table>
+          <thead>
+            <tr>
+              <th>Heure</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Vitesse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of history">
+              <td>{{ h.recordedAt }}</td>
+              <td>{{ h.latitude }}</td>
+              <td>{{ h.longitude }}</td>
+              <td>{{ h.speedKmh || 0 }} km/h</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noHistory>
+        <p class="empty">Pas d'historique disponible.</p>
+      </ng-template>
+    </article>
+  </div>
+</section>

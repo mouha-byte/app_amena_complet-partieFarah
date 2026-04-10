@@ -1,0 +1,275 @@
+<div class="page-layout">
+  <!-- begin::NexLink Page Header -->
+  <app-backoffice-header></app-backoffice-header>
+  <!-- end::NexLink Page Header -->
+
+  <!-- begin::NexLink Sidebar Menu -->
+  <aside class="app-menubar-tabs" id="appMenubar">
+    <div class="app-navbar-brand">
+      <a class="navbar-brand-logo" routerLink="/app2">
+        <img src="assets/backoffice/images/favicon.png" alt="NexLink Admin Dashboard Logo">
+      </a>
+    </div>
+
+    <div class="app-navbar-tabs" data-simplebar="">
+      <ul class="nav" id="appMenubarTabs" role="tablist" aria-orientation="vertical">
+        <!-- Main Dashboard -->
+        <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Dashboard">
+          <a class="menu-link active waves-effect waves-light" href="#dashboardTab" role="tab"
+            aria-controls="dashboardTab" aria-selected="true" data-bs-toggle="tab">
+            <i class="fi-icon">
+              <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.5"
+                  d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z"
+                  fill="currentColor"></path>
+                <path
+                  d="M9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12Z"
+                  fill="currentColor"></path>
+              </svg>
+            </i>
+          </a>
+        </li>
+        <!-- Forum -->
+        <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Forum">
+          <a class="menu-link waves-effect waves-light" href="#appsTab" role="tab" aria-controls="appsTab"
+            aria-selected="false" data-bs-toggle="tab">
+            <i class="fi-icon">
+              <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M21.609 13.5616L21.8382 11.1263C22.0182 9.2137 22.1082 8.25739 21.781 7.86207C21.604 7.64823 21.3633 7.5172 21.106 7.4946C20.6303 7.45282 20.0329 8.1329 18.8381 9.49307C18.2202 10.1965 17.9113 10.5482 17.5666 10.6027C17.3757 10.6328 17.1811 10.6018 17.0047 10.5131C16.6865 10.3529 16.4743 9.91812 16.0499 9.04851L13.8131 4.46485C13.0112 2.82162 12.6102 2 12 2C11.3898 2 10.9888 2.82162 10.1869 4.46486L7.95007 9.04852C7.5257 9.91812 7.31351 10.3529 6.99526 10.5131C6.81892 10.6018 6.62434 10.6328 6.43337 10.6027C6.08872 10.5482 5.77977 10.1965 5.16187 9.49307C3.96708 8.1329 3.36968 7.45282 2.89399 7.4946C2.63666 7.5172 2.39598 7.64823 2.21899 7.86207C1.8918 8.25739 1.9818 9.2137 2.16181 11.1263L2.391 13.5616C2.76865 17.5742 2.95748 19.5805 4.14009 20.7902C5.32271 22 7.09517 22 10.6401 22H13.3599C16.9048 22 18.6773 22 19.8599 20.7902C21.0425 19.5805 21.2313 17.5742 21.609 13.5616Z"
+                  stroke="currentColor" stroke-width="2"></path>
+                <path opacity="0.5" d="M9 18H15" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                </path>
+              </svg>
+            </i>
+          </a>
+        </li>
+        <!-- Incidents -->
+        <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Incidents">
+          <a class="menu-link waves-effect waves-light" href="#pagesTab" role="tab" aria-controls="pagesTab"
+            aria-selected="false" data-bs-toggle="tab">
+            <i class="fi-icon">
+              <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4.97883 9.68508C2.99294 8.89073 2 8.49355 2 8C2 7.50645 2.99294 7.10927 4.97883 6.31492L7.7873 5.19153C9.77318 4.39718 10.7661 4 12 4C13.2339 4 14.2268 4.39718 16.2127 5.19153L19.0212 6.31492C21.0071 7.10927 22 7.50645 22 8C22 8.49355 21.0071 8.89073 19.0212 9.68508L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L4.97883 9.68508Z"
+                  stroke="currentColor" stroke-width="2"></path>
+                <path opacity="0.5"
+                  d="M22 12C22 12 21.0071 12.8907 19.0212 13.6851L16.2127 14.8085C14.2268 15.6028 13.2339 16 12 16C10.7661 16 9.77318 15.6028 7.7873 14.8085L4.97883 13.6851C2.99294 12.8907 2 12 2 12"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                <path opacity="0.5"
+                  d="M22 16C22 16 21.0071 16.8907 19.0212 17.6851L16.2127 18.8085C14.2268 19.6028 13.2339 20 12 20C10.7661 20 9.77318 19.6028 7.7873 18.8085L4.97883 17.6851C2.99294 16.8907 2 16 2 16"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+            </i>
+          </a>
+        </li>
+        <!-- Settings -->
+        <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Settings">
+          <a class="menu-link waves-effect waves-light" href="#settingsTab" role="tab" aria-controls="settingsTab"
+            aria-selected="false" data-bs-toggle="tab">
+            <i class="fi-icon">
+              <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z"
+                  stroke="currentColor" stroke-width="2"></path>
+                <path opacity="0.5"
+                  d="M2 12C2 15.4411 2 17.1616 2.80802 18.314C3.61603 19.4664 5.16016 19.8329 8.24841 20.5658C10.6698 21.1406 13.3302 21.1406 15.7516 20.5658C18.8398 19.8329 20.384 19.4664 21.192 18.314C22 17.1616 22 15.4411 22 12C22 8.55891 22 6.83837 21.192 5.68599C20.384 4.53362 18.8398 4.16709 15.7516 3.43424C13.3302 2.85938 10.6698 2.85938 8.24841 3.43424C5.16016 4.16709 3.61603 4.53362 2.80802 5.68599C2 6.83837 2 8.55891 2 12Z"
+                  stroke="currentColor" stroke-width="2"></path>
+              </svg>
+            </i>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="app-tab-content">
+      <div class="app-side-brands">
+        <a class="navbar-brand-text" routerLink="/app2">NexLink</a>
+      </div>
+      <div class="app-content-inner">
+        <div class="tab-content" id="appMenubarTabsContent">
+
+          <div class="tab-pane show active" id="dashboardTab" role="tabpanel" tabindex="0">
+            <nav class="app-navbar" data-simplebar="">
+              <ul class="side-menubar">
+                <li class="menu-heading">
+                  <span class="menu-label">Dashboard</span>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2" role="button">
+                    <i class="fi fi-rr-house-blank"></i>
+                    <span class="menu-label">Default Dashboard</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/customers" role="button">
+                    <i class="fi fi-rr-review"></i>
+                    <span class="menu-label">Customers</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/activities" role="button">
+                    <i class="fi fi-rr-calendar"></i>
+                    <span class="menu-label">Activities</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/chat" role="button">
+                    <i class="fi fi-rr-comment"></i>
+                    <span class="menu-label">Chat</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/calendar" role="button">
+                    <i class="fi fi-rr-calendar"></i>
+                    <span class="menu-label">Calendar</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <div class="tab-pane" id="appsTab" role="tabpanel" tabindex="0">
+            <nav class="app-navbar" data-simplebar="">
+              <ul class="side-menubar">
+                <li class="menu-heading">
+                  <span class="menu-label">AlzCare Forum</span>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/forum" role="button">
+                    <i class="ri-dashboard-line"></i>
+                    <span class="menu-label">Dashboard</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/forum/posts" role="button">
+                    <i class="ri-article-line"></i>
+                    <span class="menu-label">Posts</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/forum/categories" role="button">
+                    <i class="ri-folder-line"></i>
+                    <span class="menu-label">Categories</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/forum/comments" role="button">
+                    <i class="ri-chat-3-line"></i>
+                    <span class="menu-label">Comments</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/forum/banned" role="button">
+                    <i class="ri-forbid-line"></i>
+                    <span class="menu-label">Banned</span>
+                    <span class="badge bg-danger ms-auto" style="font-size:10px">Ban</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <div class="tab-pane" id="pagesTab" role="tabpanel" tabindex="0">
+            <nav class="app-navbar" data-simplebar="">
+              <ul class="side-menubar">
+                <li class="menu-heading">
+                  <span class="menu-label">Gestion des Incidents</span>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/incidents" role="button">
+                    <i class="ri-dashboard-line"></i>
+                    <span class="menu-label">Tableau de bord</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/incidents-reported" role="button">
+                    <i class="ri-alert-line"></i>
+                    <span class="menu-label">Incidents actifs</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/incident-history" role="button">
+                    <i class="ri-history-line"></i>
+                    <span class="menu-label">Historique</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/incident-types/types" role="button">
+                    <i class="ri-price-tag-3-line"></i>
+                    <span class="menu-label">Types d'incidents</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <div class="tab-pane" id="settingsTab" role="tabpanel" tabindex="0">
+            <nav class="app-navbar" data-simplebar="">
+              <ul class="side-menubar">
+                <li class="menu-heading">
+                  <span class="menu-label">Settings</span>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/settings" role="button">
+                    <i class="fi fi-rr-settings"></i>
+                    <span class="menu-label">Account Settings</span>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a class="menu-link" routerLink="/app2/user-management" role="button">
+                    <i class="fi fi-rr-user-settings"></i>
+                    <span class="menu-label">User Management</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+        </div>
+
+        <!-- Sidebar Widget -->
+        <div class="app-side-widget mt-auto d-none d-xl-block">
+          <div class="card card-gradient mx-3">
+            <div class="card-body">
+              <h5>Upgrade to Pro</h5>
+              <p class="text-1xs mb-3">Get unlimited leads, advanced analytics, and 24/7 priority support.</p>
+              <a href="javascript:void(0);" class="btn btn-primary btn-sm w-100 waves-effect waves-light">Upgrade
+                Now</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+  <!-- end::NexLink Sidebar Menu -->
+
+  <!-- begin::NexLink Page Content -->
+  <main class="app-wrapper">
+    <router-outlet></router-outlet>
+  </main>
+  <!-- end::NexLink Page Content -->
+
+  <!-- begin::NexLink Page Footer -->
+  <app-backoffice-footer></app-backoffice-footer>
+  <!-- end::NexLink Page Footer -->
+</div>
+
+<!-- Search Results Modal -->
+<div class="modal fade" id="searchResultsModal" tabindex="-1" aria-labelledby="searchResultsModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-3">
+        <h5 class="modal-title" id="searchResultsModalLabel">Search Results</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="p-3 text-center">
+          <p class="mb-0 text-muted">No results found.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

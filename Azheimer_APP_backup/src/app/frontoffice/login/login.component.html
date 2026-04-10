@@ -1,0 +1,106 @@
+<div class="login-page">
+  <div class="login-container">
+    <!-- Left side - Branding -->
+    <div class="login-branding">
+      <div class="brand-content">
+        <div class="brand-icon">🧠</div>
+        <h1>Mind Care</h1>
+        <p>Plateforme de suivi cognitif Alzheimer</p>
+        <div class="brand-features">
+          <div class="feature">
+            <span class="feature-icon">🎯</span>
+            <span>Quiz cognitifs intelligents</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📊</span>
+            <span>Analyse de risque automatique</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📧</span>
+            <span>Alertes email en temps réel</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">🗺️</span>
+            <span>Suivi GPS & zones de sécurité</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side - Login form -->
+    <div class="login-form-section">
+      <div class="login-form-wrapper">
+        <h2>Connexion</h2>
+        <p class="subtitle">Accédez à votre espace Mind Care</p>
+
+        <div *ngIf="errorMessage" class="error-banner">
+          <span class="error-icon">⚠️</span>
+          {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="login-form">
+          <div class="form-group">
+            <label for="email">Adresse email</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📧</span>
+              <input
+                type="email"
+                id="email"
+                [(ngModel)]="email"
+                name="email"
+                placeholder="votre@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                [(ngModel)]="password"
+                name="password"
+                placeholder="Votre mot de passe"
+                autocomplete="current-password"
+                required
+              />
+              <button type="button" class="toggle-password" (click)="togglePassword()">
+                {{ showPassword ? '🙈' : '👁️' }}
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-login" [disabled]="loading">
+            <span *ngIf="!loading">Se connecter</span>
+            <span *ngIf="loading" class="spinner"></span>
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <p>Pas encore de compte ? <a routerLink="/register">Créer un compte</a></p>
+          <a routerLink="/" class="back-link">← Retour à l'accueil</a>
+        </div>
+
+        <!-- Quick test accounts -->
+        <div class="test-accounts">
+          <p class="test-title">🧪 Comptes de test rapide :</p>
+          <div class="test-buttons">
+            <button class="test-btn" (click)="email='admin@mindcare.com'; password='admin123'">
+              👑 Admin
+            </button>
+            <button class="test-btn" (click)="email='doctor@mindcare.com'; password='doctor123'">
+              🩺 Docteur
+            </button>
+            <button class="test-btn" (click)="email='patient@mindcare.com'; password='patient123'">
+              🧑 Patient
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

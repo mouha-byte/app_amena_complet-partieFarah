@@ -1,0 +1,57 @@
+<div class="page">
+  <div class="page-header">
+    <div><h1>🎮 Activités Cognitives</h1><p>Choisissez une activité pour stimuler votre mémoire</p></div>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab==='quiz'" (click)="activeTab='quiz'">🧩 Quiz ({{ quizzes.length }})</button>
+    <button [class.active]="activeTab==='photo'" (click)="activeTab='photo'">📸 Photos ({{ photos.length }})</button>
+  </div>
+
+  <!-- Quiz Grid -->
+  <div class="activity-grid" *ngIf="activeTab==='quiz' && !loading">
+    <div class="activity-card" *ngFor="let q of quizzes">
+      <div class="card-top">
+        <span class="card-icon">🧩</span>
+        <span class="diff-badge">{{ getDiffIcon(q.difficulty) }} {{ getDiffLabel(q.difficulty) }}</span>
+      </div>
+      <h3>{{ q.title }}</h3>
+      <p class="card-desc">{{ q.description || 'Quiz cognitif' }}</p>
+      <div class="card-meta">
+        <span>📝 {{ q.questions?.length || 0 }} questions</span>
+      </div>
+      <a [routerLink]="['/officiel/play', 'quiz', q.id]" class="play-btn">▶ Commencer</a>
+    </div>
+    <div class="empty-state" *ngIf="!quizzes.length">
+      <div class="empty-icon">🧩</div>
+      <p>Aucun quiz disponible</p>
+    </div>
+  </div>
+
+  <!-- Photo Grid -->
+  <div class="activity-grid" *ngIf="activeTab==='photo' && !loading">
+    <div class="activity-card" *ngFor="let p of photos">
+      <div class="card-top">
+        <span class="card-icon">📸</span>
+        <span class="diff-badge">{{ getDiffIcon(p.difficulty) }} {{ getDiffLabel(p.difficulty) }}</span>
+      </div>
+      <div class="card-img" *ngIf="p.imageUrl">
+        <img [src]="p.imageUrl" alt="photo" />
+      </div>
+      <h3>{{ p.title }}</h3>
+      <p class="card-desc">{{ p.description || 'Activité photo' }}</p>
+      <div class="card-meta">
+        <span>🖼️ {{ p.options?.length || 0 }} options</span>
+      </div>
+      <a [routerLink]="['/officiel/play', 'photo', p.id]" class="play-btn">▶ Commencer</a>
+    </div>
+    <div class="empty-state" *ngIf="!photos.length">
+      <div class="empty-icon">📸</div>
+      <p>Aucune activité photo disponible</p>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div><p>Chargement des activités...</p>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<section class="forum-shell">
+  <header class="forum-header">
+    <div>
+      <h2>Forum Dashboard</h2>
+      <p>Module integre depuis la 2eme application, avec authentification de l'app principale.</p>
+    </div>
+    <div class="header-actions">
+      <a class="btn ghost" routerLink="/admin">Retour Dashboard principal</a>
+      <button type="button" class="btn primary" (click)="loadData()" [disabled]="loading">
+        {{ loading ? 'Chargement...' : 'Rafraichir' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="flash error" *ngIf="error">{{ error }}</div>
+
+  <div class="stats-grid" *ngIf="!loading">
+    <article class="stat-card">
+      <span>Categories</span>
+      <strong>{{ categories.length }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Posts</span>
+      <strong>{{ posts.length }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Commentaires</span>
+      <strong>{{ totalComments }}</strong>
+    </article>
+  </div>
+
+  <div class="loading" *ngIf="loading">Chargement du forum...</div>
+
+  <div class="content-grid" *ngIf="!loading">
+    <article class="card">
+      <h3>Categories</h3>
+      <div class="category-list" *ngIf="categories.length; else noCategory">
+        <div class="category-item" *ngFor="let c of categories">
+          <div>
+            <strong>{{ c.name }}</strong>
+            <p>{{ c.description || 'Discussion generale' }}</p>
+          </div>
+          <span class="badge">{{ countPostsByCategory(c.id) }} posts</span>
+        </div>
+      </div>
+      <ng-template #noCategory>
+        <p class="empty">Aucune categorie disponible.</p>
+      </ng-template>
+    </article>
+
+    <article class="card">
+      <h3>Derniers posts</h3>
+      <div class="post-list" *ngIf="topPosts.length; else noPosts">
+        <div class="post-item" *ngFor="let p of topPosts">
+          <strong>{{ p.title }}</strong>
+          <p>{{ p.content }}</p>
+          <small>{{ p.categoryName || ('Categorie #' + p.categoryId) }} | {{ p.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+        </div>
+      </div>
+      <ng-template #noPosts>
+        <p class="empty">Aucun post disponible.</p>
+      </ng-template>
+    </article>
+  </div>
+</section>

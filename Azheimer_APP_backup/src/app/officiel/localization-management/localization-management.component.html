@@ -1,0 +1,83 @@
+<section class="page">
+  <header class="head">
+    <div>
+      <h2>Gestion des localisations autorisees</h2>
+      <p>CRUD des zones securisees patient avec selection OpenStreetMap.</p>
+    </div>
+  </header>
+
+  <div *ngIf="msg" class="msg" [class.ok]="msgType==='ok'" [class.err]="msgType==='err'">{{ msg }}</div>
+
+  <div class="grid" *ngIf="canManage">
+    <article class="card">
+      <div class="card-head">
+        <h3>Zones existantes</h3>
+        <select [(ngModel)]="selectedPatientFilter" (ngModelChange)="applyFilter()">
+          <option value="ALL">Tous les patients</option>
+          <option *ngFor="let p of patients" [ngValue]="p.id">{{ p.firstname }} {{ p.lastname }}</option>
+        </select>
+      </div>
+
+      <div class="list" *ngIf="!loading; else loadingBlock">
+        <div class="item" *ngFor="let z of filteredZones">
+          <div class="meta">
+            <strong>{{ z.name }}</strong>
+            <small>{{ getPatientLabel(z.patientId) }}</small>
+            <small>Rayon: {{ z.radius }} m</small>
+            <small>{{ z.centerLatitude }}, {{ z.centerLongitude }}</small>
+          </div>
+          <div class="actions">
+            <button type="button" (click)="openOSM(z)">OSM</button>
+            <button type="button" (click)="editZone(z)">Edit</button>
+            <button type="button" class="danger" (click)="deleteZone(z)">Delete</button>
+          </div>
+        </div>
+        <p *ngIf="filteredZones.length===0" class="empty">Aucune zone configuree.</p>
+      </div>
+    </article>
+
+    <article class="card">
+      <h3>{{ editing ? 'Modifier une zone' : 'Creer une zone' }}</h3>
+
+      <label>Patient</label>
+      <select [(ngModel)]="form.patientId">
+        <option *ngFor="let p of patients" [ngValue]="p.id">{{ p.firstname }} {{ p.lastname }} (#{{ p.id }})</option>
+      </select>
+
+      <label>Nom de la zone</label>
+      <input [(ngModel)]="form.name" placeholder="Ex: Maison principale" />
+
+      <label>Recherche OpenStreetMap</label>
+      <div class="search-row">
+        <input [(ngModel)]="locationQuery" placeholder="Adresse ou lieu" />
+        <button type="button" (click)="searchPlaces()" [disabled]="searching">{{ searching ? '...' : 'Chercher' }}</button>
+      </div>
+      <div class="results" *ngIf="placeResults.length">
+        <button type="button" class="res" *ngFor="let r of placeResults" (click)="selectPlace(r)">{{ r.display_name }}</button>
+      </div>
+
+      <div class="coords">
+        <div>
+          <label>Latitude</label>
+          <input type="number" [(ngModel)]="form.centerLatitude" step="0.000001" />
+        </div>
+        <div>
+          <label>Longitude</label>
+          <input type="number" [(ngModel)]="form.centerLongitude" step="0.000001" />
+        </div>
+      </div>
+
+      <label>Rayon autorise (metres)</label>
+      <input type="number" [(ngModel)]="form.radius" min="20" />
+
+      <div class="actions end">
+        <button type="button" (click)="saveZone()">{{ editing ? 'Mettre a jour' : 'Creer' }}</button>
+        <button type="button" class="ghost" (click)="resetForm()">Reset</button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<ng-template #loadingBlock>
+  <p>Chargement...</p>
+</ng-template>

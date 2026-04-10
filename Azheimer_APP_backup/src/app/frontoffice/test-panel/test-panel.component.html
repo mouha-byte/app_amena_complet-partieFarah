@@ -1,0 +1,546 @@
+<div class="container-fluid py-4" style="max-width:1400px;">
+  <h2 class="mb-1">🧪 Panneau de Test — MindCare API</h2>
+  <p class="text-muted mb-3">CRUD complet : Ajouter, Modifier, Supprimer, Supprimer tout — Backend port 8085</p>
+
+  <!-- ============ TAB NAVIGATION ============ -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='quiz'" (click)="activeTab='quiz'" style="cursor:pointer">📋 Quiz</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='photo'" (click)="activeTab='photo'" style="cursor:pointer">📷 Photos</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='result'" (click)="activeTab='result'" style="cursor:pointer">📊 Résultats</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='risk'" (click)="activeTab='risk'" style="cursor:pointer">🧠 Risque / Simulation</a>
+    </li>
+  </ul>
+
+  <div class="row g-4">
+
+    <!-- ============================================================ -->
+    <!-- ====================== TAB: QUIZ =========================== -->
+    <!-- ============================================================ -->
+    <ng-container *ngIf="activeTab==='quiz'">
+
+      <!-- LEFT: Quiz Form -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">{{ quizEditMode ? '✏️ Modifier Quiz #' + quizForm.id : '➕ Ajouter un Quiz' }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Titre</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="quizForm.title" placeholder="Titre du quiz">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Description</label>
+              <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="quizForm.description" placeholder="Description"></textarea>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label class="form-label small fw-bold">Type</label>
+                <select class="form-select form-select-sm" [(ngModel)]="quizForm.type">
+                  <option>QUIZ</option>
+                  <option>IMAGE_RECOGNITION</option>
+                  <option>QUESTION_ANSWER</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Niveau</label>
+                <select class="form-select form-select-sm" [(ngModel)]="quizForm.level">
+                  <option>EASY</option>
+                  <option>MEDIUM</option>
+                  <option>HARD</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Thème</label>
+                <select class="form-select form-select-sm" [(ngModel)]="quizForm.theme">
+                  <option>MEMORY</option>
+                  <option>LOGIC</option>
+                  <option>LANGUAGE</option>
+                  <option>ATTENTION</option>
+                  <option>GENERAL</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Questions sub-form -->
+            <hr>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="small">Questions ({{ quizForm.questions?.length || 0 }})</strong>
+              <button class="btn btn-outline-success btn-sm" (click)="addQuestion()">+ Question</button>
+            </div>
+            <div *ngFor="let q of quizForm.questions; let i = index" class="border rounded p-2 mb-2 bg-light">
+              <div class="d-flex justify-content-between mb-1">
+                <small class="fw-bold">Q{{ i + 1 }}</small>
+                <button class="btn btn-outline-danger btn-sm py-0 px-1" (click)="removeQuestion(i)">✕</button>
+              </div>
+              <input type="text" class="form-control form-control-sm mb-1" [(ngModel)]="q.text" placeholder="Texte de la question">
+              <div class="row g-1 mb-1">
+                <div class="col-4"><input type="text" class="form-control form-control-sm" [(ngModel)]="q.optionA" placeholder="Option A"></div>
+                <div class="col-4"><input type="text" class="form-control form-control-sm" [(ngModel)]="q.optionB" placeholder="Option B"></div>
+                <div class="col-4"><input type="text" class="form-control form-control-sm" [(ngModel)]="q.optionC" placeholder="Option C"></div>
+              </div>
+              <div class="row g-1">
+                <div class="col-4">
+                  <select class="form-select form-select-sm" [(ngModel)]="q.correctAnswer">
+                    <option>A</option><option>B</option><option>C</option>
+                  </select>
+                </div>
+                <div class="col-4">
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="q.score" placeholder="Points">
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-primary btn-sm" (click)="saveQuiz()">
+                {{ quizEditMode ? '💾 Mettre à jour' : '➕ Créer' }}
+              </button>
+              <button *ngIf="quizEditMode" class="btn btn-outline-secondary btn-sm" (click)="newQuiz()">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Quiz List -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📋 Liste des Quiz</h5>
+            <div>
+              <button class="btn btn-light btn-sm me-1" (click)="loadQuizzes()" [disabled]="quizLoading">
+                <span *ngIf="quizLoading" class="spinner-border spinner-border-sm me-1"></span>🔄 Charger
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="deleteAllQuizzes()" [disabled]="quizzes.length===0">🗑 Supprimer tout</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Search -->
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" class="form-control" [(ngModel)]="quizSearchTitle" placeholder="Rechercher par titre...">
+              <button class="btn btn-outline-primary" (click)="searchQuizzes()">🔍</button>
+              <button class="btn btn-outline-secondary" (click)="quizSearchTitle=''; loadQuizzes()">✕</button>
+            </div>
+
+            <div *ngIf="quizError" class="alert alert-danger py-1 small">{{ quizError }}</div>
+
+            <div style="max-height:500px; overflow-y:auto;">
+              <table class="table table-sm table-bordered table-hover" *ngIf="quizzes.length > 0">
+                <thead class="table-light">
+                  <tr><th>ID</th><th>Titre</th><th>Thème</th><th>Niveau</th><th>Qst</th><th style="width:200px">Actions</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let q of quizzes">
+                    <td>{{ q.id }}</td>
+                    <td>{{ q.title }}</td>
+                    <td>{{ q.theme }}</td>
+                    <td><span class="badge bg-info">{{ q.level }}</span></td>
+                    <td>{{ q.questions?.length || 0 }}</td>
+                    <td>
+                      <a [routerLink]="['/quiz/player', q.id]" class="btn btn-success btn-sm me-1">▶</a>
+                      <button class="btn btn-warning btn-sm me-1" (click)="editQuiz(q)">✏️</button>
+                      <button class="btn btn-danger btn-sm" (click)="deleteQuiz(q.id!)">🗑</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p *ngIf="quizzes.length===0 && !quizLoading" class="text-muted small">Aucun quiz. Cliquez "Charger" ou créez-en un.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ============================================================ -->
+    <!-- ====================== TAB: PHOTO ========================== -->
+    <!-- ============================================================ -->
+    <ng-container *ngIf="activeTab==='photo'">
+
+      <!-- LEFT: Photo Form -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">{{ photoEditMode ? '✏️ Modifier Photo #' + photoForm.id : '➕ Ajouter une Photo' }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Titre</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="photoForm.title" placeholder="Titre">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Description</label>
+              <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="photoForm.description" placeholder="Description"></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">URL de l'image</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="photoForm.imageUrl" placeholder="https://...">
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Type</label>
+                <select class="form-select form-select-sm" [(ngModel)]="photoForm.type">
+                  <option>IMAGE_RECOGNITION</option>
+                  <option>QUIZ</option>
+                  <option>QUESTION_ANSWER</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Difficulté</label>
+                <select class="form-select form-select-sm" [(ngModel)]="photoForm.difficulty">
+                  <option>EASY</option>
+                  <option>MEDIUM</option>
+                  <option>HARD</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Preview -->
+            <div *ngIf="photoForm.imageUrl" class="text-center mb-2">
+              <img [src]="photoForm.imageUrl" class="img-thumbnail" style="max-height:120px;" alt="Preview">
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-success btn-sm" (click)="savePhoto()">
+                {{ photoEditMode ? '💾 Mettre à jour' : '➕ Créer' }}
+              </button>
+              <button *ngIf="photoEditMode" class="btn btn-outline-secondary btn-sm" (click)="newPhoto()">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Photo List -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📷 Liste des Photos</h5>
+            <div>
+              <button class="btn btn-light btn-sm me-1" (click)="loadPhotos()" [disabled]="photoLoading">
+                <span *ngIf="photoLoading" class="spinner-border spinner-border-sm me-1"></span>🔄 Charger
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="deleteAllPhotos()" [disabled]="photos.length===0">🗑 Supprimer tout</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Search -->
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" class="form-control" [(ngModel)]="photoSearchTitle" placeholder="Rechercher par titre...">
+              <button class="btn btn-outline-success" (click)="searchPhotos()">🔍</button>
+              <button class="btn btn-outline-secondary" (click)="photoSearchTitle=''; loadPhotos()">✕</button>
+            </div>
+
+            <div *ngIf="photoError" class="alert alert-danger py-1 small">{{ photoError }}</div>
+
+            <div style="max-height:500px; overflow-y:auto;">
+              <table class="table table-sm table-bordered table-hover" *ngIf="photos.length > 0">
+                <thead class="table-light">
+                  <tr><th>ID</th><th>Titre</th><th>Type</th><th>Difficulté</th><th>Image</th><th style="width:150px">Actions</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of photos">
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.title }}</td>
+                    <td>{{ p.type }}</td>
+                    <td><span class="badge bg-info">{{ p.difficulty }}</span></td>
+                    <td><img [src]="p.imageUrl" style="max-height:40px;" alt="" class="rounded"></td>
+                    <td>
+                      <button class="btn btn-warning btn-sm me-1" (click)="editPhoto(p)">✏️</button>
+                      <button class="btn btn-danger btn-sm" (click)="deletePhoto(p.id!)">🗑</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p *ngIf="photos.length===0 && !photoLoading" class="text-muted small">Aucune photo. Cliquez "Charger" ou créez-en une.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ============================================================ -->
+    <!-- ====================== TAB: RESULTS ======================== -->
+    <!-- ============================================================ -->
+    <ng-container *ngIf="activeTab==='result'">
+
+      <!-- LEFT: Result Form -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">{{ resultEditMode ? '✏️ Modifier Résultat #' + resultForm.id : '➕ Ajouter un Résultat' }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label class="form-label small fw-bold">Patient ID</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.patientId">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Nom</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="resultForm.patientName">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Email</label>
+                <input type="email" class="form-control form-control-sm" [(ngModel)]="resultForm.patientEmail">
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label class="form-label small fw-bold">Type activité</label>
+                <select class="form-select form-select-sm" [(ngModel)]="resultForm.activityType">
+                  <option>QUIZ</option>
+                  <option>IMAGE_RECOGNITION</option>
+                  <option>QUESTION_ANSWER</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Activité ID</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.activityId">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Titre activité</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="resultForm.activityTitle">
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-3">
+                <label class="form-label small fw-bold">Difficulté</label>
+                <select class="form-select form-select-sm" [(ngModel)]="resultForm.difficulty">
+                  <option>EASY</option>
+                  <option>MEDIUM</option>
+                  <option>HARD</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label class="form-label small fw-bold">Total Q</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.totalQuestions">
+              </div>
+              <div class="col-3">
+                <label class="form-label small fw-bold">Correctes</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.correctAnswers">
+              </div>
+              <div class="col-3">
+                <label class="form-label small fw-bold">Temps (s)</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.timeSpentSeconds">
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Score</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.score">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Max Score</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="resultForm.maxScore">
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-info btn-sm text-white" (click)="saveResult()">
+                {{ resultEditMode ? '💾 Mettre à jour' : '➕ Créer (+ calcul risque)' }}
+              </button>
+              <button *ngIf="resultEditMode" class="btn btn-outline-secondary btn-sm" (click)="newResult()">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Results List -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📊 Résultats enregistrés</h5>
+            <div>
+              <button class="btn btn-light btn-sm me-1" (click)="loadResults()" [disabled]="resultsLoading">
+                <span *ngIf="resultsLoading" class="spinner-border spinner-border-sm me-1"></span>🔄 Charger
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="deleteAllResults()" [disabled]="results.length===0">🗑 Supprimer tout</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="resultsError" class="alert alert-danger py-1 small">{{ resultsError }}</div>
+
+            <div style="max-height:500px; overflow-y:auto;">
+              <table class="table table-sm table-bordered table-hover" *ngIf="results.length > 0">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th><th>Patient</th><th>Score</th><th>Pondéré</th><th>Risque</th><th>Alerte</th><th>Diff.</th><th style="width:150px">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let r of results">
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.patientName || r.patientId }}</td>
+                    <td>{{ r.score }}/{{ r.maxScore }}</td>
+                    <td><strong>{{ r.weightedScore?.toFixed(1) }}</strong></td>
+                    <td><span class="badge" [ngClass]="getRiskBadgeClass(r.riskLevel)">{{ r.riskLevel }}</span></td>
+                    <td>{{ r.alertSent ? '📧' : '-' }}</td>
+                    <td>{{ r.difficulty }}</td>
+                    <td>
+                      <button class="btn btn-warning btn-sm me-1" (click)="editResult(r)">✏️</button>
+                      <button class="btn btn-danger btn-sm" (click)="deleteResult(r.id!)">🗑</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p *ngIf="results.length===0 && !resultsLoading" class="text-muted small">Aucun résultat. Cliquez "Charger" ou créez-en un.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ============================================================ -->
+    <!-- ============= TAB: RISK / SIMULATION ======================= -->
+    <!-- ============================================================ -->
+    <ng-container *ngIf="activeTab==='risk'">
+
+      <!-- LEFT: Simulate + Quick Scenarios -->
+      <div class="col-lg-6">
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">🎯 Simuler un résultat (scénarios rapides)</h5>
+          </div>
+          <div class="card-body">
+            <p class="small text-muted">Envoie un résultat factice → calcul de score + détection de risque + alerte email si HIGH/CRITICAL.</p>
+
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label class="form-label small fw-bold">Patient ID</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="simForm.patientId">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Nom</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="simForm.patientName">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Email</label>
+                <input type="email" class="form-control form-control-sm" [(ngModel)]="simForm.patientEmail">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-3">
+                <label class="form-label small fw-bold">Difficulté</label>
+                <select class="form-select form-select-sm" [(ngModel)]="simForm.difficulty">
+                  <option>EASY</option><option>MEDIUM</option><option>HARD</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label class="form-label small fw-bold">Total Q</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="simForm.totalQuestions">
+              </div>
+              <div class="col-3">
+                <label class="form-label small fw-bold">Correctes</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="simForm.correctAnswers">
+              </div>
+              <div class="col-3">
+                <label class="form-label small fw-bold">Temps (s)</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="simForm.timeSpentSeconds">
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button class="btn btn-outline-primary btn-sm" (click)="simulateResult()" [disabled]="simLoading">
+                <span *ngIf="simLoading" class="spinner-border spinner-border-sm me-1"></span>📤 Envoyer
+              </button>
+              <button class="btn btn-success btn-sm" (click)="simulateLowRisk()">✅ Low Risk</button>
+              <button class="btn btn-warning btn-sm" (click)="simulateMediumRisk()">⚠️ Medium</button>
+              <button class="btn btn-danger btn-sm" (click)="simulateHighRisk()">🔴 High</button>
+              <button class="btn btn-dark btn-sm" (click)="simulateCriticalRisk()">🚨 Critical</button>
+            </div>
+
+            <div *ngIf="simError" class="alert alert-danger py-1 small">{{ simError }}</div>
+
+            <div *ngIf="simResult" class="card border-0 shadow-sm bg-light">
+              <div class="card-body p-3">
+                <h6 class="mb-2">Résultat sauvegardé (ID: {{ simResult.id }})</h6>
+                <div class="row text-center">
+                  <div class="col-3">
+                    <strong class="text-primary fs-5">{{ simResult.weightedScore?.toFixed(1) }}</strong>
+                    <br><small class="text-muted">Score pondéré</small>
+                  </div>
+                  <div class="col-3">
+                    <span class="badge fs-6" [ngClass]="getRiskBadgeClass(simResult.riskLevel)">{{ simResult.riskLevel }}</span>
+                    <br><small class="text-muted">Risque</small>
+                  </div>
+                  <div class="col-3">
+                    <strong>{{ simResult.score }}/{{ simResult.maxScore }}</strong>
+                    <br><small class="text-muted">Score brut</small>
+                  </div>
+                  <div class="col-3">
+                    <strong>{{ simResult.alertSent ? '📧 Oui' : 'Non' }}</strong>
+                    <br><small class="text-muted">Alerte</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Risk Analysis -->
+      <div class="col-lg-6">
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">🧠 Analyse de Risque Alzheimer</h5>
+          </div>
+          <div class="card-body">
+            <div class="input-group input-group-sm mb-3">
+              <span class="input-group-text">Patient ID</span>
+              <input type="number" class="form-control" [(ngModel)]="riskPatientId">
+              <button class="btn btn-danger" (click)="loadRiskAnalysis()" [disabled]="riskLoading">
+                <span *ngIf="riskLoading" class="spinner-border spinner-border-sm me-1"></span>Analyser
+              </button>
+            </div>
+
+            <div *ngIf="riskError" class="alert alert-danger py-1 small">{{ riskError }}</div>
+
+            <div *ngIf="riskAnalysis">
+              <div class="alert" [ngClass]="{
+                'alert-success': riskAnalysis.trend === 'STABLE' || riskAnalysis.trend === 'IMPROVING',
+                'alert-warning': riskAnalysis.trend === 'DECLINING',
+                'alert-danger': riskAnalysis.trend === 'CRITICAL_DECLINE',
+                'alert-info': !riskAnalysis.trend || riskAnalysis.trend === 'INSUFFICIENT_DATA'
+              }">
+                <strong>Tendance :</strong> {{ riskAnalysis.trend }}<br>
+                <strong>Total résultats :</strong> {{ riskAnalysis.totalResults }}
+              </div>
+
+              <div *ngIf="riskAnalysis.results && riskAnalysis.results.length > 0" style="max-height:250px; overflow-y:auto;">
+                <table class="table table-sm table-bordered">
+                  <thead class="table-light"><tr><th>Date</th><th>Score pondéré</th><th>Risque</th></tr></thead>
+                  <tbody>
+                    <tr *ngFor="let r of riskAnalysis.results">
+                      <td>{{ r.completedAt | date:'short' }}</td>
+                      <td>{{ r.weightedScore?.toFixed(1) }}</td>
+                      <td><span class="badge" [ngClass]="getRiskBadgeClass(r.riskLevel)">{{ r.riskLevel }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div><!-- /row -->
+
+  <!-- ============ CONSOLE (always visible) ============ -->
+  <div class="card shadow-sm mt-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">🖥 Console API</h5>
+      <button class="btn btn-outline-light btn-sm" (click)="clearLogs()">Effacer</button>
+    </div>
+    <div class="card-body p-2" style="max-height:180px; overflow-y:auto; background:#1e1e1e;">
+      <pre class="mb-0 small" style="color:#0f0; font-family:monospace; white-space:pre-wrap;"
+      ><span *ngFor="let l of logs">{{ l }}
+</span></pre>
+    </div>
+  </div>
+</div>

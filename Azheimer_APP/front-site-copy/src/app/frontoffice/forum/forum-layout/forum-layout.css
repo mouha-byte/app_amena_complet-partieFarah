@@ -1,0 +1,17 @@
+.forum-layout-content {
+    min-height: calc(100vh - 200px);
+    background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+    position: relative;
+}
+
+/* Optional deco elements to match the "premium" feel */
+.forum-layout-content::before {
+    content: '';
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}

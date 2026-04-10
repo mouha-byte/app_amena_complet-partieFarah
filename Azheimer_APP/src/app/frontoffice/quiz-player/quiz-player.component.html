@@ -1,0 +1,299 @@
+<div class="quiz-player-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement du quiz...</span>
+    </div>
+  </div>
+
+  <!-- Quiz Content -->
+  <div *ngIf="!isLoading && quiz" class="quiz-content">
+    <!-- Header -->
+    <div class="quiz-header mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">{{ quiz.title }}</h4>
+        <div class="quiz-info">
+          <span class="badge bg-warning text-dark me-2">
+            <i class="fi fi-rr-clock me-1"></i>{{ elapsedDisplay }}
+          </span>
+          <span class="badge bg-primary text-white me-2">{{ quiz.theme }}</span>
+          <span class="badge bg-secondary text-white">{{ quiz.level }}</span>
+        </div>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="progress mt-3" style="height: 8px;">
+        <div class="progress-bar bg-success" 
+             [style.width.%]="progress" 
+             role="progressbar" 
+             [attr.aria-valuenow]="progress" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+        </div>
+      </div>
+      <div class="text-center mt-2">
+        <small class="text-muted">Question {{ currentQuestionIndex + 1 }} / {{ quiz.questions?.length }}</small>
+      </div>
+    </div>
+
+    <!-- Quiz Completed -->
+    <div *ngIf="isQuizCompleted" class="quiz-completed text-center py-5">
+      <div class="completed-icon mb-4">
+        <i class="fi fi-rr-trophy display-1 text-warning"></i>
+      </div>
+      <h3 class="mb-3">Quiz Terminé !</h3>
+      <div class="score-display mb-4">
+        <h2 class="text-primary">{{ score }} / {{ maxScore }}</h2>
+        <p class="text-muted">Points obtenus</p>
+      </div>
+      
+      <!-- Results Summary -->
+      <div class="results-summary mb-4">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h5 class="text-success">{{ correctAnswersCount }}</h5>
+              <p class="mb-0">Correctes</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h5 class="text-danger">{{ incorrectAnswersCount }}</h5>
+              <p class="mb-0">Incorrectes</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h5 class="text-info">{{ successRate }}%</h5>
+              <p class="mb-0">Taux de réussite</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h5 class="text-warning">{{ elapsedDisplay }}</h5>
+              <p class="mb-0">Temps total</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saving indicator -->
+      <div *ngIf="isSavingResult" class="mb-3">
+        <div class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
+        <span>Analyse en cours...</span>
+      </div>
+
+      <!-- Save error -->
+      <div *ngIf="saveError" class="alert alert-warning mx-auto" style="max-width:500px;">
+        <i class="fi fi-rr-exclamation me-2"></i>{{ saveError }}
+      </div>
+
+      <!-- Risk Analysis Card (from backend) -->
+      <div *ngIf="savedResult" class="risk-analysis-card mx-auto mb-4" style="max-width:600px;">
+        <div class="card border-0 shadow">
+          <div class="card-header text-white"
+               [ngClass]="{
+                 'bg-success': savedResult.riskLevel === 'LOW',
+                 'bg-warning': savedResult.riskLevel === 'MEDIUM',
+                 'bg-danger': savedResult.riskLevel === 'HIGH' || savedResult.riskLevel === 'CRITICAL'
+               }">
+            <h5 class="mb-0">
+              <i class="fi fi-rr-brain me-2"></i>Analyse Cognitive
+            </h5>
+          </div>
+          <div class="card-body bg-white text-dark">
+            <div class="row text-center">
+              <div class="col-6">
+                <h4 class="text-primary mb-0">{{ savedResult.weightedScore | number:'1.1-1' }}</h4>
+                <small class="text-muted">Score Pondéré / 100</small>
+              </div>
+              <div class="col-6">
+                <h4 class="mb-0"
+                    [ngClass]="{
+                      'text-success': savedResult.riskLevel === 'LOW',
+                      'text-warning': savedResult.riskLevel === 'MEDIUM',
+                      'text-danger': savedResult.riskLevel === 'HIGH' || savedResult.riskLevel === 'CRITICAL'
+                    }">
+                  {{ savedResult.riskLevel }}
+                </h4>
+                <small class="text-muted">Niveau de Risque</small>
+              </div>
+            </div>
+            <hr>
+            <p class="mb-0 small text-muted">
+              <span *ngIf="savedResult.riskLevel === 'LOW'">
+                ✅ Performances cognitives normales. Continuez les exercices régulièrement !
+              </span>
+              <span *ngIf="savedResult.riskLevel === 'MEDIUM'">
+                ⚠️ Performances modérées. Un suivi régulier est conseillé.
+              </span>
+              <span *ngIf="savedResult.riskLevel === 'HIGH'">
+                🔴 Performances préoccupantes. Une consultation médicale est recommandée.
+              </span>
+              <span *ngIf="savedResult.riskLevel === 'CRITICAL'">
+                🚨 Score critique détecté. Une alerte a été envoyée à l'équipe médicale.
+              </span>
+            </p>
+            <p *ngIf="savedResult.alertSent" class="mt-2 mb-0 small text-info">
+              📧 Un email d'alerte a été envoyé à l'équipe soignante.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary me-2" (click)="restartQuiz()">
+          <i class="fi fi-rr-refresh me-2"></i>
+          Recommencer
+        </button>
+        <button class="btn btn-outline-secondary" (click)="goToQuizzes()">
+          <i class="fi fi-rr-arrow-left me-2"></i>
+          Retour aux quiz
+        </button>
+      </div>
+    </div>
+
+    <!-- Question Display -->
+    <div *ngIf="!isQuizCompleted && currentQuestion" class="question-container">
+      <div class="question-card">
+        <div class="question-header mb-4">
+          <h5 class="question-text">{{ currentQuestion.text }}</h5>
+          <div class="question-points">
+            <span class="badge bg-info text-white">{{ currentQuestion.score }} pts</span>
+          </div>
+        </div>
+
+        <!-- Answer Options -->
+        <div class="answer-options">
+          <div class="row g-3">
+            <div class="col-md-4" *ngFor="let option of ['A', 'B', 'C']">
+              <button class="answer-btn w-100 p-3"
+                      [class]="getAnswerClass(option)"
+                      [disabled]="isQuizCompleted"
+                      (click)="selectAnswer(option)">
+                <div class="d-flex align-items-center">
+                  <span class="option-label me-3">{{ option }}</span>
+                  <span class="option-text">{{ getOptionText(option) }}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="question-navigation mt-4">
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-outline-secondary" 
+                    (click)="previousQuestion()" 
+                    [disabled]="currentQuestionIndex === 0">
+              <i class="fi fi-rr-arrow-left me-2"></i>
+              Précédent
+            </button>
+            
+            <div class="current-score">
+              <span class="badge bg-primary text-white">Score: {{ score }}</span>
+            </div>
+
+            <button class="btn btn-primary" 
+                    (click)="submitAnswer()" 
+                    [disabled]="!selectedAnswer || isQuizCompleted">
+              {{ currentQuestionIndex < (quiz.questions?.length || 0) - 1 ? 'Suivant' : 'Terminer' }}
+              <i class="fi fi-rr-arrow-right ms-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.quiz-player-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.quiz-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.question-card {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.question-text {
+  color: #2c3e50;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.answer-btn {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: white;
+  transition: all 0.3s ease;
+  min-height: 80px;
+}
+
+.answer-btn:hover:not(:disabled) {
+  border-color: #667eea;
+  background: #f8f9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.answer-btn.selected {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+}
+
+.option-label {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #667eea;
+}
+
+.answer-btn.selected .option-label {
+  color: white;
+}
+
+.quiz-completed {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 40px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.completed-icon {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+</style>

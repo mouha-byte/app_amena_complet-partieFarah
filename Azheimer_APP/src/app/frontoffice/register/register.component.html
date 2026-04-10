@@ -1,0 +1,110 @@
+<div class="register-page">
+  <div class="register-container">
+    <!-- Left panel -->
+    <div class="register-branding">
+      <div class="brand-content">
+        <div class="brand-icon">🧠</div>
+        <h1>Mind Care</h1>
+        <p>Rejoignez la plateforme de suivi cognitif</p>
+        <div class="brand-stats">
+          <div class="stat">
+            <div class="stat-value">🎯</div>
+            <div class="stat-label">Quiz adaptatifs</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">📊</div>
+            <div class="stat-label">Scoring intelligent</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">🛡️</div>
+            <div class="stat-label">Détection précoce</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right form -->
+    <div class="register-form-section">
+      <div class="register-form-wrapper">
+        <h2>Créer un compte</h2>
+        <p class="subtitle">Commencez votre suivi cognitif aujourd'hui</p>
+
+        <div *ngIf="errorMessage" class="error-banner">
+          <span>⚠️</span> {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="success-banner">
+          <span>✅</span> {{ successMessage }}
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="register-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstname">Prénom *</label>
+              <input type="text" id="firstname" [(ngModel)]="firstname" name="firstname"
+                     placeholder="Jean" required />
+            </div>
+            <div class="form-group">
+              <label for="lastname">Nom *</label>
+              <input type="text" id="lastname" [(ngModel)]="lastname" name="lastname"
+                     placeholder="Dupont" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" [(ngModel)]="email" name="email"
+                   placeholder="votre@email.com" required />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Téléphone</label>
+            <input type="tel" id="phone" [(ngModel)]="phone" name="phone"
+                   placeholder="+216 XX XXX XXX" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="password">Mot de passe *</label>
+              <div class="input-wrapper">
+                <input [type]="showPassword ? 'text' : 'password'" id="password"
+                       [(ngModel)]="password" name="password"
+                       placeholder="Min. 4 caractères" required />
+                <button type="button" class="toggle-password" (click)="togglePassword()">
+                  {{ showPassword ? '🙈' : '👁️' }}
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirmer *</label>
+              <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword"
+                     [(ngModel)]="confirmPassword" name="confirmPassword"
+                     placeholder="Confirmer" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Rôle</label>
+            <div class="role-selector">
+              <label *ngFor="let r of roles" class="role-option"
+                     [class.selected]="role === r.value">
+                <input type="radio" [(ngModel)]="role" name="role" [value]="r.value" />
+                <span class="role-label">{{ r.label }}</span>
+                <span class="role-desc">{{ r.desc }}</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-register" [disabled]="loading">
+            <span *ngIf="!loading">Créer mon compte</span>
+            <span *ngIf="loading" class="spinner"></span>
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <p>Déjà un compte ? <a routerLink="/login">Se connecter</a></p>
+          <a routerLink="/" class="back-link">← Retour à l'accueil</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

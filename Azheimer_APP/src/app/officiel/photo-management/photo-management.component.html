@@ -1,0 +1,68 @@
+<div class="page">
+  <div class="page-header">
+    <div><h1>📸 Gestion des Photos</h1><p>Créer et gérer les activités de reconnaissance photo</p></div>
+    <button class="btn-primary" (click)="openCreate()">+ Nouvelle Photo</button>
+  </div>
+
+  <div class="alert" [ngClass]="msgType" *ngIf="msg">{{ msg }}</div>
+
+  <div class="table-card" *ngIf="!showForm">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Image</th><th>Titre</th><th>Difficulté</th><th>Réponse</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of photos">
+            <td>{{ p.id }}</td>
+            <td><img *ngIf="p.imageUrl" [src]="p.imageUrl" class="thumb" alt="photo" /><span *ngIf="!p.imageUrl" class="no-img">📷</span></td>
+            <td><strong>{{ p.title }}</strong><br><small class="muted">{{ p.description | slice:0:50 }}</small></td>
+            <td><span class="badge diff-{{ p.difficulty?.toLowerCase() }}">{{ p.difficulty }}</span></td>
+            <td>{{ p.correctAnswer }}</td>
+            <td class="actions">
+              <button class="btn-icon edit" (click)="openEdit(p)">✏️</button>
+              <button class="btn-icon del" (click)="delete(p.id)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="!photos.length && !loading"><td colspan="6" class="empty">Aucune activité photo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="loading" *ngIf="loading"><div class="spinner"></div></div>
+  </div>
+
+  <div class="form-card" *ngIf="showForm">
+    <div class="form-header">
+      <h2>{{ editing ? 'Modifier' : 'Nouvelle' }} Activité Photo</h2>
+      <button class="btn-ghost" (click)="showForm=false">✕ Fermer</button>
+    </div>
+    <form (ngSubmit)="save()">
+      <div class="form-grid">
+        <div class="field span2"><label>Titre *</label><input [(ngModel)]="form.title" name="title" placeholder="Nom de l'activité" required /></div>
+        <div class="field span2"><label>Description</label><textarea [(ngModel)]="form.description" name="desc" rows="2" placeholder="Description"></textarea></div>
+        <div class="field"><label>Difficulté</label>
+          <select [(ngModel)]="form.difficulty" name="diff">
+            <option value="EASY">🟢 Facile</option><option value="MEDIUM">🟡 Moyen</option><option value="HARD">🔴 Difficile</option>
+          </select>
+        </div>
+        <div class="field"><label>URL Image</label><input [(ngModel)]="form.imageUrl" name="imgUrl" placeholder="https://..." /></div>
+        <div class="field span2"><label>Réponse correcte *</label><input [(ngModel)]="form.correctAnswer" name="ans" placeholder="La bonne réponse" required /></div>
+      </div>
+      <div class="field" style="margin-bottom:20px">
+        <label>Options de réponse</label>
+        <div class="options-list">
+          <div class="opt-row" *ngFor="let o of form.options; let i = index; trackBy: trackByIdx">
+            <span class="opt-num">{{ i+1 }}</span>
+            <input [(ngModel)]="form.options[i]" [name]="'opt'+i" [placeholder]="'Option '+(i+1)" />
+          </div>
+        </div>
+      </div>
+      <div class="img-preview" *ngIf="form.imageUrl">
+        <label>Aperçu</label>
+        <img [src]="form.imageUrl" alt="preview" />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" (click)="showForm=false">Annuler</button>
+        <button type="submit" class="btn-primary">{{ editing ? 'Mettre à jour' : 'Créer' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

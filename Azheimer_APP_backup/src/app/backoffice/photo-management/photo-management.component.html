@@ -1,0 +1,187 @@
+<div class="page-layout">
+  <!-- begin::NexLink Page Header -->
+  <header class="app-header">
+    <div class="app-header-inner">
+      <button class="app-toggler" type="button" aria-label="app toggler">
+        <svg width="16" height="16" viewbox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7.66699 12.6668L3.66699 8.00016L7.66699 3.3335" stroke="#1C274C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path opacity="0.5" d="M12.667 12.6668L8.66699 8.00016L12.667 3.3335" stroke="#1C274C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <div class="app-header-start d-none d-md-flex">
+        <form class="d-flex align-items-center h-100 w-lg-250px w-xxl-300px position-relative" action="#">
+          <button type="button" class="btn btn-sm border-0 position-absolute start-0 ms-3 p-0">
+            <i class="fi fi-rr-search"></i>
+          </button>
+          <input type="text" class="form-control form-control-fill ps-5" placeholder="Rechercher une photo..." [(ngModel)]="searchTerm" (ngModelChange)="onSearch()">
+        </form>
+      </div>
+      <div class="app-header-end">
+        <div class="px-lg-4 px-2 ps-0 d-flex align-items-center">
+          <h4 class="mb-0 text-primary">Photos à Distinguer</h4>
+        </div>
+        <div class="vr my-3"></div>
+        <div class="d-flex align-items-center gap-sm-2 gap-0 px-lg-4 px-sm-2 px-1">
+          <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#addPhotoModal">
+            <i class="fi fi-rr-plus me-2"></i>
+            Nouvelle Photo
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- end::NexLink Page Header -->
+
+  <div class="page-content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fi fi-rr-image me-2"></i>
+                Liste des Photos
+              </h5>
+            </div>
+            <div class="card-body">
+              <!-- Loading State -->
+              <div *ngIf="isLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Chargement...</span>
+                </div>
+              </div>
+
+              <!-- Photo Grid -->
+              <div *ngIf="!isLoading" class="row">
+                <div *ngFor="let photo of photos" class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                  <div class="card photo-card">
+                    <div class="card-img-top">
+                      <img [src]="photo.imageUrl | safeUrl" [alt]="photo.title" class="img-fluid" 
+                           (error)="onImageError($event)" 
+                           [style.max-height]="'200px'" 
+                           [style.object-fit]="'cover'">
+                      <div class="photo-overlay">
+                        <span class="badge {{ getTypeColor(photo.type) }} text-white position-absolute top-0 start-0 m-2">
+                          {{ photo.type }}
+                        </span>
+                        <span class="badge bg-{{ getDifficultyBadge(photo.difficulty) }} text-white position-absolute top-0 end-0 m-2">
+                          {{ photo.difficulty }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <h6 class="card-title">{{ photo.title }}</h6>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                          <i class="fi fi-rr-calendar me-1"></i>
+                          {{ photo.createdAt }}
+                        </small>
+                        <span class="badge bg-primary text-white">{{ photo.points }} pts</span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{{ photo.status === 'ACTIVE' ? 'success' : 'secondary' }} text-white">
+                          {{ photo.status === 'ACTIVE' ? 'Actif' : 'Inactif' }}
+                        </span>
+                        <div class="btn-group" role="group">
+                          <button type="button" class="btn btn-sm btn-outline-primary waves-effect waves-light" (click)="onEdit(photo)">
+                            <i class="fi fi-rr-edit"></i>
+                          </button>
+                          <button type="button" class="btn btn-sm btn-outline-danger waves-effect waves-light" (click)="onDelete(photo)">
+                            <i class="fi fi-rr-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="!isLoading && photos.length === 0" class="text-center py-5">
+                <div class="empty-state">
+                  <i class="fi fi-rr-image display-1 text-muted mb-3"></i>
+                  <h5 class="text-muted">Aucune photo trouvée</h5>
+                  <p class="text-muted">Commencez par ajouter votre première photo.</p>
+                  <button type="button" class="btn btn-primary waves-effect waves-light mt-3" data-bs-toggle="modal" data-bs-target="#addPhotoModal">
+                    <i class="fi fi-rr-plus me-2"></i>
+                    Ajouter une Photo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pour ajouter une photo -->
+  <div class="modal fade" id="addPhotoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEditing ? 'Modifier une photo' : 'Ajouter une nouvelle photo' }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="photoForm">
+            <div class="mb-3">
+              <label for="photoTitle" class="form-label">Titre</label>
+              <input type="text" class="form-control" id="photoTitle" formControlName="title" placeholder="Entrez le titre de la photo">
+            </div>
+            <div class="mb-3">
+              <label for="photoDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="photoDescription" formControlName="description" rows="3" placeholder="Entrez la description de la photo"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="photoType" class="form-label">Type de photo</label>
+              <select class="form-select" id="photoType" formControlName="type">
+                <option value="">Sélectionner un type</option>
+                <option value="DOMESTIC">Animaux domestiques</option>
+                <option value="WILD">Animaux sauvages</option>
+                <option value="OBJECTS">Objets du quotidien</option>
+                <option value="PEOPLE">Personnes</option>
+                <option value="PLACES">Lieux</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="photoDifficulty" class="form-label">Difficulté</label>
+              <select class="form-select" id="photoDifficulty" formControlName="difficulty">
+                <option value="">Sélectionner une difficulté</option>
+                <option value="EASY">Facile</option>
+                <option value="MEDIUM">Moyenne</option>
+                <option value="HARD">Difficile</option>
+                <option value="EXPERT">Expert</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="photoPoints" class="form-label">Points</label>
+              <input type="number" class="form-control" id="photoPoints" formControlName="points" placeholder="Nombre de points">
+            </div>
+            <div class="mb-3">
+              <label for="photoFile" class="form-label">Image</label>
+              <input type="file" class="form-control" id="photoFile" accept="image/*" (change)="onFileSelected($event)">
+              <div *ngIf="selectedFile" class="mt-2">
+                <small class="text-muted">Fichier sélectionné: {{ selectedFile.name }}</small>
+              </div>
+              <!-- Aperçu de l'image -->
+              <div *ngIf="photoForm.get('imageUrl')?.value" class="mt-2">
+                <img [src]="photoForm.get('imageUrl')?.value | safeUrl" class="img-thumbnail" style="max-height: 150px;">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="onUpload()" [disabled]="photoForm.invalid">
+            {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+          </button>
+          <!-- Debug info -->
+          <div class="mt-2 text-muted small">
+            Formulaire valide: {{ !photoForm.invalid }} | Titre: {{ photoForm.get('title')?.value }} | Type: {{ photoForm.get('type')?.value }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

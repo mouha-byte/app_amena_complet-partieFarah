@@ -1,0 +1,83 @@
+<div class="dashboard">
+  <div class="welcome">
+    <h1>{{ greeting }}, {{ user?.firstname }} 👋</h1>
+    <p>Bienvenue sur votre tableau de bord Mind Care</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card purple">
+      <div class="stat-icon">🧩</div>
+      <div class="stat-info"><div class="stat-val">{{ stats.totalQuizzes || 0 }}</div><div class="stat-lbl">Quiz Actifs</div></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-icon">📸</div>
+      <div class="stat-info"><div class="stat-val">{{ stats.totalPhotos || 0 }}</div><div class="stat-lbl">Activités Photo</div></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-info"><div class="stat-val">{{ stats.avgScore || 0 }}%</div><div class="stat-lbl">Score Moyen</div></div>
+    </div>
+    <div class="stat-card" [ngClass]="stats.criticalCount > 0 ? 'red' : 'teal'">
+      <div class="stat-icon">{{ stats.criticalCount > 0 ? '⚠️' : '✅' }}</div>
+      <div class="stat-info"><div class="stat-val">{{ stats.criticalCount || 0 }}</div><div class="stat-lbl">Alertes Risque</div></div>
+    </div>
+    <div class="stat-card amber" *ngIf="user?.role==='ADMIN'">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info"><div class="stat-val">{{ stats.totalUsers || 0 }}</div><div class="stat-lbl">Utilisateurs</div></div>
+    </div>
+    <div class="stat-card indigo">
+      <div class="stat-icon">📊</div>
+      <div class="stat-info"><div class="stat-val">{{ stats.totalResults || 0 }}</div><div class="stat-lbl">Résultats</div></div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <h2>Actions rapides</h2>
+    <div class="actions-grid">
+      <a routerLink="/officiel/quiz-list" class="action-card" *ngIf="user?.role==='PATIENT'">
+        <span class="action-icon">🎮</span><span>Jouer un Quiz</span>
+      </a>
+      <a routerLink="/officiel/quiz-management" class="action-card" *ngIf="user?.role==='ADMIN'||user?.role==='DOCTOR'">
+        <span class="action-icon">➕</span><span>Gérer les Quiz</span>
+      </a>
+      <a routerLink="/officiel/photo-management" class="action-card" *ngIf="user?.role==='ADMIN'||user?.role==='DOCTOR'">
+        <span class="action-icon">📸</span><span>Gérer les Photos</span>
+      </a>
+      <a routerLink="/officiel/results" class="action-card">
+        <span class="action-icon">📈</span><span>Voir Résultats</span>
+      </a>
+      <a routerLink="/officiel/results" class="action-card" *ngIf="user?.role==='ADMIN'||user?.role==='DOCTOR'" [queryParams]="{tab:'risk'}">
+        <span class="action-icon">🔬</span><span>Analyse Risque</span>
+      </a>
+      <a routerLink="/officiel/users" class="action-card" *ngIf="user?.role==='ADMIN'">
+        <span class="action-icon">👥</span><span>Utilisateurs</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Results -->
+  <div class="section" *ngIf="recentResults.length">
+    <h2>Résultats récents</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Activité</th><th>Score</th><th>Difficulté</th><th>Risque</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of recentResults">
+            <td><strong>{{ r.activityTitle || 'Quiz' }}</strong></td>
+            <td>{{ r.weightedScore | number:'1.0-0' }}%</td>
+            <td><span class="badge diff-{{ r.difficulty?.toLowerCase() }}">{{ r.difficulty }}</span></td>
+            <td><span class="badge" [ngClass]="getRiskClass(r.riskLevel)">{{ r.riskLevel }}</span></td>
+            <td>{{ r.completedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+</div>
