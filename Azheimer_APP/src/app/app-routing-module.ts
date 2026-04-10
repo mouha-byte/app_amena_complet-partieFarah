@@ -109,13 +109,12 @@ const routes: Routes = [
   { path: 'admin/team-management', component: TeamManagementPage, canActivate: [AuthGuard] },
   { path: 'admin/user-management', component: UserManagementPage, canActivate: [AuthGuard] },
 
-  // App2 integration (lazy-loaded feature module)
+  // App2 route (front-site-copy removed)
   {
     path: 'app2',
     canActivate: [AuthGuard],
     data: { roles: ['ADMIN', 'DOCTOR', 'PATIENT', 'CAREGIVER'] },
-    loadChildren: () =>
-      import('../../front-site-copy/src/app/backoffice/backoffice-module').then((m) => m.BackofficeModule),
+    component: Home2,
   },
 
   // === OFFICIEL ===

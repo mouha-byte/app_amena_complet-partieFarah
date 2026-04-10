@@ -1,4 +1,4 @@
-﻿import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+﻿import { NgModule, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
@@ -164,7 +164,13 @@ import { IncidentCalendarPage } from './backoffice/incident-full/incident-calend
     OffQuizPlayer,
     OffUserMgmt
   ],
-  providers: [provideBrowserGlobalErrorListeners(), QuizService, GameResultService, AuthService],
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    QuizService,
+    GameResultService,
+    AuthService,
+  ],
   bootstrap: [App],
 })
 export class AppModule { }

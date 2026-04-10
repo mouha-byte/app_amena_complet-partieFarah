@@ -23,8 +23,23 @@ public class PostController {
     private final CommentRepository commentRepository;
 
     @PostMapping("/category/{categoryId}")
-    public ResponseEntity<Post> createPost(@Valid @RequestBody Post post, @PathVariable Long categoryId) {
-        return new ResponseEntity<>(postService.createPost(post, categoryId), HttpStatus.CREATED);
+    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody Post post, @PathVariable Long categoryId) {
+        Post created = postService.createPost(post, categoryId);
+        PostDTO dto = PostDTO.builder()
+                .id(created.getId())
+                .title(created.getTitle())
+                .content(created.getContent())
+                .userId(created.getUserId())
+                .author(created.getAuthor() != null ? created.getAuthor() : "User " + created.getUserId())
+                .createdAt(created.getCreatedAt())
+                .categoryId(created.getCategory() != null ? created.getCategory().getId() : null)
+                .categoryName(created.getCategory() != null ? created.getCategory().getName() : "General")
+                .status(created.getStatus() != null ? created.getStatus() : "PUBLISHED")
+                .commentCount(0)
+                .violenceSensitivity(created.getViolenceSensitivity() != null ? created.getViolenceSensitivity() : 0)
+                .spamSensitivity(created.getSpamSensitivity() != null ? created.getSpamSensitivity() : 0)
+                .build();
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -47,7 +62,7 @@ public class PostController {
                     .title(post.getTitle())
                     .content(post.getContent())
                     .userId(post.getUserId())
-                    .author("User " + post.getUserId())
+                    .author(post.getAuthor() != null ? post.getAuthor() : "User " + post.getUserId())
                     .createdAt(post.getCreatedAt())
                     .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
                     .categoryName(post.getCategory() != null ? post.getCategory().getName() : "General")
@@ -81,7 +96,7 @@ public class PostController {
             .title(post.getTitle())
             .content(post.getContent())
             .userId(post.getUserId())
-            .author("User " + post.getUserId())
+            .author(post.getAuthor() != null ? post.getAuthor() : "User " + post.getUserId())
             .createdAt(post.getCreatedAt())
             .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
             .categoryName(post.getCategory() != null ? post.getCategory().getName() : "General")
@@ -103,7 +118,7 @@ public class PostController {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .userId(post.getUserId())
-                .author("User " + post.getUserId())
+                .author(post.getAuthor() != null ? post.getAuthor() : "User " + post.getUserId())
                 .createdAt(post.getCreatedAt())
                 .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
                 .categoryName(post.getCategory() != null ? post.getCategory().getName() : "General")
