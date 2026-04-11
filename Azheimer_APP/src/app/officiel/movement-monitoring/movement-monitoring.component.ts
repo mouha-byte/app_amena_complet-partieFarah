@@ -36,6 +36,10 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
   msg = '';
   msgType: 'info' | 'warn' | 'err' = 'info';
 
+  private browserNotificationsEnabled = false;
+  private readonly notificationRepeatMs = 30000;
+  private lastNotificationAtByAlertId = new Map<number, number>();
+
   constructor(
     private auth: AuthService,
     private movement: MovementService,
@@ -51,7 +55,14 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.isAdminOrDoctor) {
+    this.initializeBrowserNotifications();
+
+    if (this.isCaregiver) {
+      this.loadCaregiverPatients();
+      return;
+    }
+
+    if (this.isDoctorOrAdmin) {
       this.movement.getPatients().subscribe({
         next: (patients) => {
           this.patients = patients || [];
@@ -82,9 +93,22 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
     this.stopPolling();
   }
 
-  get isAdminOrDoctor(): boolean {
+  get isDoctorOrAdmin(): boolean {
     const role = this.user?.role;
     return role === 'ADMIN' || role === 'DOCTOR';
+  }
+
+  get isCaregiver(): boolean {
+    return this.user?.role === 'CAREGIVER';
+  }
+
+  get isAdminOrDoctor(): boolean {
+    const role = this.user?.role;
+    return role === 'ADMIN' || role === 'DOCTOR' || role === 'CAREGIVER';
+  }
+
+  get isAdmin(): boolean {
+    return this.user?.role === 'ADMIN';
   }
 
   get isPatient(): boolean {
@@ -119,7 +143,7 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
         catchError((error) => of({ data: [] as LocationPing[], failed: true, error }))
       );
 
-    const alerts$ = (this.isAdminOrDoctor
+    const alerts$ = (this.isDoctorOrAdmin
       ? this.movement.getAlerts(true)
       : this.movement.getPatientAlerts(this.selectedPatientId))
       .pipe(
@@ -141,6 +165,7 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
         }
         if (!alerts.failed) {
           this.alerts = alerts.data || [];
+          this.notifyForCriticalAlerts(this.alerts);
         }
 
         if (failedErrors.length === 0) {
@@ -226,6 +251,24 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
     );
   }
 
+  testSimulationMigration(): void {
+    this.sendRandomSimulationLocation(
+      'SIMULATION_OUT_OF_ZONE_RANDOM',
+      500,
+      1800,
+      'Simulation sortie de zone envoyee (position aleatoire).'
+    );
+  }
+
+  testSimulationTeleportation(): void {
+    this.sendRandomSimulationLocation(
+      'SIMULATION_ABRUPT_RANDOM',
+      250,
+      900,
+      'Simulation changement brusque envoyee (position aleatoire).'
+    );
+  }
+
   acknowledge(alert: MovementAlert): void {
     this.movement.acknowledgeAlert(alert.id).subscribe({
       next: () => this.refresh(),
@@ -285,18 +328,212 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getPatientLabel(patientId: number): string {
-    const patient = this.patients.find((p) => p.id === patientId);
-    if (!patient) {
-      return `#${patientId}`;
-    }
-
-    return `${patient.firstname || ''} ${patient.lastname || ''} (#${patient.id})`.trim();
+  retryConnection(): void {
+    this.backendOffline = false;
+    this.consecutiveApiErrors = 0;
+    this.offlineReason = '';
+    this.showMsg('Tentative de reconnexion au service movement...', 'info');
+    this.refresh();
+    this.startPolling();
   }
 
-  private buildWhatsAppUrl(phone: string, message: string): string {
-    const text = encodeURIComponent(message);
-    return `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
+  private sendRandomSimulationLocation(
+    source: string,
+    minDistanceMeters: number,
+    maxDistanceMeters: number,
+    successMessage: string
+  ): void {
+    if (!this.selectedPatientId) {
+      this.showMsg('Patient introuvable pour la simulation.', 'err');
+      return;
+    }
+
+    const randomTarget = this.generateRandomTargetPosition(minDistanceMeters, maxDistanceMeters);
+
+    this.reporting = true;
+    this.refreshView();
+
+    this.movement.reportLocation({
+      patientId: this.selectedPatientId,
+      latitude: randomTarget.latitude,
+      longitude: randomTarget.longitude,
+      accuracyMeters: 0,
+      source
+    }).subscribe({
+      next: () => {
+        this.reporting = false;
+        this.showMsg(successMessage, 'info');
+        this.refresh();
+        this.refreshView();
+      },
+      error: (error) => {
+        this.reporting = false;
+        this.handleApiError(error, 'Erreur pendant la simulation de localisation.');
+        this.refreshView();
+      }
+    });
+  }
+
+  private generateRandomTargetPosition(minDistanceMeters: number, maxDistanceMeters: number): { latitude: number; longitude: number } {
+    const fallbackLatitude = 36.8065;
+    const fallbackLongitude = 10.1815;
+    const baseLatitude = this.latestLocation?.latitude ?? fallbackLatitude;
+    const baseLongitude = this.latestLocation?.longitude ?? fallbackLongitude;
+
+    const distanceMeters = minDistanceMeters + Math.random() * Math.max(1, maxDistanceMeters - minDistanceMeters);
+    const angleRad = Math.random() * 2 * Math.PI;
+
+    const deltaLat = (distanceMeters * Math.cos(angleRad)) / 111320;
+    const cosLat = Math.cos((baseLatitude * Math.PI) / 180);
+    const safeCos = Math.abs(cosLat) < 0.0001 ? 0.0001 : cosLat;
+    const deltaLon = (distanceMeters * Math.sin(angleRad)) / (111320 * safeCos);
+
+    const latitude = Math.max(-90, Math.min(90, baseLatitude + deltaLat));
+    const longitude = Math.max(-180, Math.min(180, baseLongitude + deltaLon));
+
+    return { latitude, longitude };
+  }
+
+  private initializeBrowserNotifications(): void {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      this.browserNotificationsEnabled = true;
+      return;
+    }
+
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then((permission) => {
+        this.browserNotificationsEnabled = permission === 'granted';
+      });
+    }
+  }
+
+  private notifyForCriticalAlerts(alerts: MovementAlert[]): void {
+    if (!this.browserNotificationsEnabled) {
+      return;
+    }
+
+    const currentAlerts = alerts || [];
+    const notificationTypes = new Set(['OUT_OF_SAFE_ZONE', 'RAPID_OR_UNUSUAL_MOVEMENT', 'IMMOBILE_TOO_LONG']);
+    const activeAlertIds = new Set<number>();
+    const now = Date.now();
+
+    for (const alert of currentAlerts) {
+      if (!notificationTypes.has(alert.alertType) || alert.acknowledged) {
+        continue;
+      }
+
+      activeAlertIds.add(alert.id);
+      const lastNotifiedAt = this.lastNotificationAtByAlertId.get(alert.id) ?? 0;
+      if (now - lastNotifiedAt < this.notificationRepeatMs) {
+        continue;
+      }
+
+      this.lastNotificationAtByAlertId.set(alert.id, now);
+      try {
+        new Notification(`Alerte patient #${alert.patientId}`, {
+          body: alert.message,
+          tag: `movement-alert-${alert.id}`
+        });
+      } catch {
+        // Ignore Notification API errors on unsupported devices/browsers.
+      }
+    }
+
+    for (const existingId of Array.from(this.lastNotificationAtByAlertId.keys())) {
+      if (!activeAlertIds.has(existingId)) {
+        this.lastNotificationAtByAlertId.delete(existingId);
+      }
+    }
+  }
+
+  private loadCaregiverPatients(): void {
+    const caregiverId = Number(this.user?.id || 0);
+    if (!caregiverId) {
+      this.showMsg('Session aidant invalide. Reconnectez-vous.', 'err');
+      this.loading = false;
+      this.refreshView();
+      return;
+    }
+
+    this.auth.getPatientsByCaregiver(caregiverId).subscribe({
+      next: (users: any[]) => {
+        this.patients = (users || [])
+          .map((u) => this.normalizeAppUser(u))
+          .filter((u): u is AppUser => !!u);
+
+        this.selectedPatientId = this.patients[0]?.id || 0;
+        if (!this.selectedPatientId) {
+          this.showMsg('Aucun patient rattaché à cet aidant.', 'warn');
+          this.loading = false;
+          this.refreshView();
+          return;
+        }
+
+        this.refresh();
+        this.startPolling();
+        this.refreshView();
+      },
+      error: () => {
+        this.showMsg('Impossible de charger les patients rattachés.', 'err');
+        this.loading = false;
+        this.refreshView();
+      }
+    });
+  }
+
+  private normalizeAppUser(raw: any): AppUser | null {
+    const id = Number(raw?.id ?? raw?.userId ?? 0);
+    if (!id || Number.isNaN(id)) {
+      return null;
+    }
+
+    return {
+      id,
+      firstname: (raw?.firstname ?? raw?.firstName ?? '').toString(),
+      lastname: (raw?.lastname ?? raw?.lastName ?? '').toString(),
+      email: (raw?.email ?? '').toString(),
+      phone: (raw?.phone ?? '').toString(),
+      role: (raw?.role ?? '').toString(),
+    };
+  }
+
+  private initializePatientView(): void {
+    const directId = Number(this.user?.id);
+    if (directId && !Number.isNaN(directId)) {
+      this.selectedPatientId = directId;
+      this.refresh();
+      this.startPolling();
+      this.reportMyLiveGps();
+      this.refreshView();
+      return;
+    }
+
+    // Fallback for sessions where patient id is not present in the auth payload.
+    this.movement.getPatients().subscribe({
+      next: (patients) => {
+        const byEmail = (patients || []).find((p) => p.email === this.user?.email);
+        this.selectedPatientId = byEmail?.id || 0;
+        if (!this.selectedPatientId) {
+          this.showMsg('Impossible de determiner votre identifiant patient. Reconnectez-vous.', 'err');
+          this.loading = false;
+          this.refreshView();
+          return;
+        }
+        this.refresh();
+        this.startPolling();
+        this.reportMyLiveGps();
+        this.refreshView();
+      },
+      error: () => {
+        this.showMsg('Erreur de resolution du profil patient.', 'err');
+        this.loading = false;
+        this.refreshView();
+      }
+    });
   }
 
   private startPolling(): void {
@@ -309,15 +546,6 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => this.refresh());
       }, 8000);
     });
-  }
-
-  retryConnection(): void {
-    this.backendOffline = false;
-    this.consecutiveApiErrors = 0;
-    this.offlineReason = '';
-    this.showMsg('Tentative de reconnexion au service movement...', 'info');
-    this.refresh();
-    this.startPolling();
   }
 
   private stopPolling(): void {
@@ -359,37 +587,18 @@ export class MovementMonitoringComponent implements OnInit, OnDestroy {
     }, 3500);
   }
 
-  private initializePatientView(): void {
-    const directId = Number(this.user?.id);
-    if (directId && !Number.isNaN(directId)) {
-      this.selectedPatientId = directId;
-      this.refresh();
-      this.startPolling();
-      this.refreshView();
-      return;
+  private getPatientLabel(patientId: number): string {
+    const patient = this.patients.find((p) => p.id === patientId);
+    if (!patient) {
+      return `#${patientId}`;
     }
 
-    // Fallback for sessions where patient id is not present in the auth payload.
-    this.movement.getPatients().subscribe({
-      next: (patients) => {
-        const byEmail = (patients || []).find((p) => p.email === this.user?.email);
-        this.selectedPatientId = byEmail?.id || 0;
-        if (!this.selectedPatientId) {
-          this.showMsg('Impossible de determiner votre identifiant patient. Reconnectez-vous.', 'err');
-          this.loading = false;
-          this.refreshView();
-          return;
-        }
-        this.refresh();
-        this.startPolling();
-        this.refreshView();
-      },
-      error: () => {
-        this.showMsg('Erreur de resolution du profil patient.', 'err');
-        this.loading = false;
-        this.refreshView();
-      }
-    });
+    return `${patient.firstname || ''} ${patient.lastname || ''} (#${patient.id})`.trim();
+  }
+
+  private buildWhatsAppUrl(phone: string, message: string): string {
+    const text = encodeURIComponent(message);
+    return `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
   }
 
   private refreshView(): void {

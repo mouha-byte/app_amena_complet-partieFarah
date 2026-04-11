@@ -10,7 +10,7 @@ import tn.esprit.users_service.repository.UserRepository;
 import java.time.LocalDateTime;
 
 /**
- * Seeds test users on application startup if database is empty.
+ * Ensures test users exist on application startup.
  */
 @Component
 @RequiredArgsConstructor
@@ -20,54 +20,31 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() == 0) {
-            // Admin
-            User admin = new User();
-            admin.setFirstname("Admin");
-            admin.setLastname("MindCare");
-            admin.setEmail("admin@mindcare.com");
-            admin.setPassword("admin123");
-            admin.setPhone("+216 00 000 001");
-            admin.setRole(Role.ADMIN);
-            admin.setCreatedAt(LocalDateTime.now());
-            userRepository.save(admin);
+        ensureUser("Admin", "MindCare", "admin@mindcare.com", "admin123", "+216 00 000 001", Role.ADMIN);
+        ensureUser("Dr. Ahmed", "Ben Ali", "doctor@mindcare.com", "doctor123", "+216 00 000 002", Role.DOCTOR);
+        ensureUser("Alice", "Dupont", "patient@mindcare.com", "patient123", "+216 00 000 003", Role.PATIENT);
+        ensureUser("Marie", "Martin", "caregiver@mindcare.com", "caregiver123", "+216 00 000 004", Role.CAREGIVER);
 
-            // Doctor
-            User doctor = new User();
-            doctor.setFirstname("Dr. Ahmed");
-            doctor.setLastname("Ben Ali");
-            doctor.setEmail("doctor@mindcare.com");
-            doctor.setPassword("doctor123");
-            doctor.setPhone("+216 00 000 002");
-            doctor.setRole(Role.DOCTOR);
-            doctor.setCreatedAt(LocalDateTime.now());
-            userRepository.save(doctor);
+        // Requested custom accounts
+        ensureUser("Amena", "Patient", "amena.patient@gmail.com", "patient123", "+216 00 000 005", Role.PATIENT);
+        ensureUser("Amena", "Caregiver", "amena@gmail.com", "caregiver123", "+216 00 000 006", Role.CAREGIVER);
 
-            // Patient
-            User patient = new User();
-            patient.setFirstname("Alice");
-            patient.setLastname("Dupont");
-            patient.setEmail("patient@mindcare.com");
-            patient.setPassword("patient123");
-            patient.setPhone("+216 00 000 003");
-            patient.setRole(Role.PATIENT);
-            patient.setCreatedAt(LocalDateTime.now());
-            userRepository.save(patient);
+        System.out.println("✅ Seed users ensured (including Amena patient/caregiver accounts)");
+    }
 
-            // Caregiver
-            User caregiver = new User();
-            caregiver.setFirstname("Marie");
-            caregiver.setLastname("Martin");
-            caregiver.setEmail("caregiver@mindcare.com");
-            caregiver.setPassword("caregiver123");
-            caregiver.setPhone("+216 00 000 004");
-            caregiver.setRole(Role.CAREGIVER);
-            caregiver.setCreatedAt(LocalDateTime.now());
-            userRepository.save(caregiver);
-
-            System.out.println("✅ 4 test users created (admin, doctor, patient, caregiver)");
-        } else {
-            System.out.println("ℹ️ Users already exist, skipping seed data.");
+    private void ensureUser(String firstname, String lastname, String email, String password, String phone, Role role) {
+        if (userRepository.existsByEmail(email)) {
+            return;
         }
+
+        User user = new User();
+        user.setFirstname(firstname);
+        user.setLastname(lastname);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setPhone(phone);
+        user.setRole(role);
+        user.setCreatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

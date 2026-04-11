@@ -9,7 +9,7 @@
   </div>
 
   <!-- Tabs -->
-  <div class="tabs" *ngIf="user?.role === 'ADMIN' || user?.role === 'DOCTOR'">
+  <div class="tabs" *ngIf="user?.role === 'ADMIN' || user?.role === 'DOCTOR' || user?.role === 'CAREGIVER'">
     <button class="tab-btn" [class.active]="activeTab === 'results'" (click)="activeTab='results'">📋 Résultats</button>
     <button class="tab-btn" [class.active]="activeTab === 'risk'" (click)="activeTab='risk'">🔬 Vue Risque Patients</button>
   </div>

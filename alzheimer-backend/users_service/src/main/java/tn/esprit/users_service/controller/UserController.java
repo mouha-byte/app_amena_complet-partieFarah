@@ -32,6 +32,11 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/caregiver/{caregiverId}/patients")
+    public List<User> getPatientsByCaregiver(@PathVariable("caregiverId") Long caregiverId) {
+        return userService.getPatientsByCaregiver(caregiverId);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User userDetails) {
         try {

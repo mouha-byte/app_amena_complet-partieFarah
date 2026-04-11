@@ -40,7 +40,7 @@ export class LoginComponent {
         if (response.success) {
           // Redirect based on role
           const role = response.user?.role;
-          if (role === 'ADMIN' || role === 'DOCTOR') {
+          if (role === 'ADMIN' || role === 'DOCTOR' || role === 'CAREGIVER') {
             this.router.navigate(['/admin']);
           } else {
             this.router.navigate(['/']);

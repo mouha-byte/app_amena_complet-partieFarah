@@ -352,7 +352,8 @@ body.is-authenticated .navmenu .module-nav-activity {
 
 body.role-admin .navmenu .module-nav-localization,
 body.role-doctor .navmenu .module-nav-localization,
-body.role-patient .navmenu .module-nav-localization {
+body.role-patient .navmenu .module-nav-localization,
+body.role-caregiver .navmenu .module-nav-localization {
   display: list-item;
 }
 

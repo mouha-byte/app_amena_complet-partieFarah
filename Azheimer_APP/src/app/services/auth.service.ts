@@ -89,6 +89,10 @@ export class AuthService {
     return this.currentUser?.role === 'PATIENT';
   }
 
+  get isCaregiver(): boolean {
+    return this.currentUser?.role === 'CAREGIVER';
+  }
+
   getRole(): string {
     return this.currentUser?.role || '';
   }

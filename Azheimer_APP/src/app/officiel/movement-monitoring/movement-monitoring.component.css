@@ -230,6 +230,45 @@
   color: var(--ink-2);
 }
 
+.simulation-box {
+  border: 1px solid #4f5767;
+  border-radius: 0.7rem;
+  padding: 0.7rem;
+  margin: 0 0 0.55rem;
+  background: rgba(30, 35, 44, 0.62);
+}
+
+.sim-title {
+  margin: 0 0 0.45rem;
+  color: var(--ink-1);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.sim-grid {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sim-grid input {
+  border: 1px solid #596172;
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  background: #1c2028;
+  color: var(--ink-1);
+}
+
+.sim-grid input::placeholder {
+  color: #9aa2af;
+}
+
+.sim-preview {
+  margin-top: 0.45rem;
+  display: block;
+  color: #b3bbc8;
+}
+
 .card-head {
   display: flex;
   justify-content: space-between;
@@ -365,6 +404,10 @@
   }
 
   .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-grid {
     grid-template-columns: 1fr;
   }
 

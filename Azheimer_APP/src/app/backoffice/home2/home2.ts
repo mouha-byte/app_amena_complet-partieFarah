@@ -189,7 +189,7 @@ export class Home2 implements OnInit {
   }
 
   get canManageQuiz(): boolean {
-    return this.hasAnyRole(['ADMIN', 'DOCTOR']);
+    return this.hasAnyRole(['ADMIN']);
   }
 
   get canManagePhoto(): boolean {
@@ -197,11 +197,11 @@ export class Home2 implements OnInit {
   }
 
   get canViewResults(): boolean {
-    return this.hasAnyRole(['ADMIN', 'DOCTOR', 'PATIENT']);
+    return this.hasAnyRole(['ADMIN', 'DOCTOR', 'CAREGIVER']);
   }
 
   get canAccessMyQuiz(): boolean {
-    return this.hasAnyRole(['PATIENT', 'CAREGIVER']);
+    return this.hasAnyRole(['ADMIN', 'PATIENT']);
   }
 
   get canManageUsers(): boolean {
@@ -331,10 +331,10 @@ export class Home2 implements OnInit {
   }
 
   private firstAllowedActivitySection(): 'quiz' | 'photo' | 'myquiz' | 'results' | 'users' | null {
+    if (this.canViewResults) return 'results';
+    if (this.canAccessMyQuiz) return 'myquiz';
     if (this.canManageQuiz) return 'quiz';
     if (this.canManagePhoto) return 'photo';
-    if (this.canAccessMyQuiz) return 'myquiz';
-    if (this.canViewResults) return 'results';
     if (this.canManageUsers) return 'users';
     return null;
   }

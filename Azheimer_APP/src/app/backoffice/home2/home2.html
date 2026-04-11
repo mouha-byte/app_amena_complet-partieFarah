@@ -703,7 +703,7 @@
                   <li class="menu-item" *ngIf="canAccessMyQuiz">
                     <a class="menu-link" href="javascript:void(0);" role="button" [class.active]="activeWorkspace === 'activity' && activeSection === 'myquiz'" (click)="openActivity('myquiz')">
                       <i class="fi fi-rr-gamepad"></i>
-                      <span class="menu-label">Mes Quiz</span>
+                      <span class="menu-label">{{ user?.role === 'ADMIN' ? 'Jouer Quiz' : 'Mes Quiz' }}</span>
                     </a>
                   </li>
                   <li class="menu-item" *ngIf="canViewResults">
@@ -2702,7 +2702,7 @@
             <div class="card-body">
               <h5 class="mb-1">{{ currentPageTitle }}</h5>
               <p class="text-body mb-0" *ngIf="activeWorkspace === 'localization'">Selectionnez Localisations ou Suivi Patient dans la colonne de gauche.</p>
-              <p class="text-body mb-0" *ngIf="activeWorkspace === 'activity'">Selectionnez Quiz Management, Photo Management, Mes Quiz, Resultats & Risque ou Utilisateurs dans la colonne de gauche.</p>
+              <p class="text-body mb-0" *ngIf="activeWorkspace === 'activity'">Selectionnez une section activity disponible pour votre role dans la colonne de gauche.</p>
               <p class="text-body mb-0" *ngIf="activeWorkspace === 'forum'">Accedez aux categories, publications, commentaires et a la moderation depuis ce dashboard.</p>
               <p class="text-body mb-0" *ngIf="activeWorkspace === 'incident'">Accedez a toutes les pages incident: liste, signalement, historique, types, stats, calendrier.</p>
               <p class="text-danger mb-0 mt-2" *ngIf="!canDisplayCurrentSection">Votre role {{ roleLabel }} n'a pas acces a cette section.</p>

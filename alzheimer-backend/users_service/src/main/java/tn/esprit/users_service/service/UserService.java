@@ -3,10 +3,12 @@ package tn.esprit.users_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.users_service.entity.User;
+import tn.esprit.users_service.repository.PatientRepository;
 import tn.esprit.users_service.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
 
     public User createUser(User user) {
         user.setCreatedAt(LocalDateTime.now());
@@ -33,7 +36,9 @@ public class UserService {
             user.setFirstname(userDetails.getFirstname());
             user.setLastname(userDetails.getLastname());
             user.setEmail(userDetails.getEmail());
-            user.setPassword(userDetails.getPassword());
+            if (userDetails.getPassword() != null && !userDetails.getPassword().isBlank()) {
+                user.setPassword(userDetails.getPassword());
+            }
             user.setPhone(userDetails.getPhone());
             user.setRole(userDetails.getRole());
             return userRepository.save(user);
@@ -42,5 +47,12 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public List<User> getPatientsByCaregiver(Long caregiverId) {
+        return patientRepository.findByCaregiverId(caregiverId).stream()
+                .map(patient -> patient.getUser())
+                .filter(Objects::nonNull)
+                .toList();
     }
 }

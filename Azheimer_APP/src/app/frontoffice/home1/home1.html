@@ -10,10 +10,10 @@
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a routerLink="/" class="active">Home</a></li>
-        <li class="module-nav-btn module-nav-localization" *ngIf="authService.isAdmin || authService.isDoctor || authService.isPatient"><a routerLink="/crud/localization">Localisation</a></li>
+        <li class="module-nav-btn module-nav-localization" *ngIf="authService.isAdmin || authService.isDoctor || authService.isPatient || authService.isCaregiver"><a routerLink="/crud/localization">Localisation</a></li>
         <li class="module-nav-btn module-nav-forum" *ngIf="authService.isLoggedIn"><a routerLink="/crud/forum">{{ authService.isAdmin ? 'Forum Admin' : 'Forum' }}</a></li>
         <li class="module-nav-btn module-nav-incident" *ngIf="authService.isLoggedIn"><a routerLink="/crud/incident/list">Incident</a></li>
-        <li class="module-nav-btn module-nav-activity" *ngIf="authService.isLoggedIn"><a routerLink="/crud/activity">{{ authService.isAdmin || authService.isDoctor ? 'Activity (Gestion Quiz)' : 'Activity (Quiz)' }}</a></li>
+        <li class="module-nav-btn module-nav-activity" *ngIf="authService.isLoggedIn"><a routerLink="/crud/activity">{{ authService.isDoctor || authService.isCaregiver ? 'Activity (Stats Quiz)' : 'Activity (Quiz)' }}</a></li>
         <li><a routerLink="/activities" routerLinkActive="active">Activities</a></li>
         <li class="dropdown"><a href="#"><span>More Pages</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
           <ul>

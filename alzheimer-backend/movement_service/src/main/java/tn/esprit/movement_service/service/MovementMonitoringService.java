@@ -29,11 +29,11 @@ public class MovementMonitoringService {
     private final MovementAlertRepository movementAlertRepository;
     private final MovementAlertNotifier movementAlertNotifier;
 
-    @Value("${movement.alerts.rapid-speed-kmh:20}")
-    private double rapidSpeedThresholdKmh;
+    @Value("${movement.alerts.abrupt-distance-meters:300}")
+    private double abruptDistanceThresholdMeters;
 
-    @Value("${movement.alerts.immobile-hours:2}")
-    private long immobileHours;
+    @Value("${movement.alerts.immobile-seconds:20}")
+    private long immobileSeconds;
 
     @Value("${movement.alerts.immobile-radius-meters:25}")
     private double immobileRadiusMeters;
@@ -50,13 +50,14 @@ public class MovementMonitoringService {
 
         LocalDateTime recordedAt = request.getRecordedAt() != null ? request.getRecordedAt() : LocalDateTime.now();
         Optional<LocationPing> previous = locationPingRepository.findTopByPatientIdOrderByRecordedAtDesc(request.getPatientId());
+        String source = request.getSource();
 
         LocationPing ping = LocationPing.builder()
                 .patientId(request.getPatientId())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .accuracyMeters(request.getAccuracyMeters())
-                .source(request.getSource())
+            .source(source)
                 .recordedAt(recordedAt)
                 .build();
 
@@ -67,8 +68,12 @@ public class MovementMonitoringService {
 
         LocationPing saved = locationPingRepository.save(ping);
 
+        if (isSimulationSource(source)) {
+            createSimulationAlert(saved, previous.orElse(null));
+        }
+
         evaluateOutOfSafeZone(saved);
-        evaluateRapidMovement(saved);
+        evaluateAbruptMovement(previous.orElse(null), saved);
         evaluateImmobility(saved.getPatientId());
 
         return saved;
@@ -137,7 +142,7 @@ public class MovementMonitoringService {
         }
     }
 
-    @Scheduled(fixedDelayString = "${movement.alerts.immobility-check-ms:1800000}")
+    @Scheduled(fixedDelayString = "${movement.alerts.immobility-check-ms:10000}")
     public void checkImmobilePatients() {
         List<Long> patientIds = locationPingRepository.findDistinctPatientIds();
         for (Long patientId : patientIds) {
@@ -178,32 +183,40 @@ public class MovementMonitoringService {
         }
     }
 
-    private void evaluateRapidMovement(LocationPing ping) {
-        if (ping.getSpeedKmh() == null) {
+    private void evaluateAbruptMovement(LocationPing previous, LocationPing current) {
+        if (previous == null) {
             return;
         }
-        if (ping.getSpeedKmh() >= rapidSpeedThresholdKmh) {
+
+        double displacementMeters = distanceMeters(
+                previous.getLatitude(),
+                previous.getLongitude(),
+                current.getLatitude(),
+                current.getLongitude()
+        );
+
+        if (displacementMeters >= abruptDistanceThresholdMeters) {
             createAlertIfNeeded(
-                    ping.getPatientId(),
+                    current.getPatientId(),
                     AlertType.RAPID_OR_UNUSUAL_MOVEMENT,
                     AlertSeverity.WARNING,
-                    "Deplacement rapide/inhabituel detecte (" + String.format("%.1f", ping.getSpeedKmh()) + " km/h)."
+                    "Changement brusque detecte (" + String.format("%.0f", displacementMeters) + " m entre 2 positions)."
             );
         }
     }
 
     private void evaluateImmobility(Long patientId) {
-        LocalDateTime start = LocalDateTime.now().minusHours(immobileHours);
+        LocalDateTime start = LocalDateTime.now().minusSeconds(immobileSeconds);
         List<LocationPing> pings = locationPingRepository.findByPatientIdAndRecordedAtAfterOrderByRecordedAtAsc(patientId, start);
 
-        if (pings.size() < 3) {
+        if (pings.size() < 2) {
             return;
         }
 
         LocationPing first = pings.get(0);
         LocationPing last = pings.get(pings.size() - 1);
-        long immobilizedHours = Duration.between(first.getRecordedAt(), last.getRecordedAt()).toHours();
-        if (immobilizedHours < immobileHours) {
+        long immobilizedSeconds = Duration.between(first.getRecordedAt(), last.getRecordedAt()).getSeconds();
+        if (immobilizedSeconds < immobileSeconds) {
             return;
         }
 
@@ -217,18 +230,24 @@ public class MovementMonitoringService {
                     patientId,
                     AlertType.IMMOBILE_TOO_LONG,
                     AlertSeverity.WARNING,
-                    "Patient immobile depuis plus de " + immobileHours + " heures."
+                    "Patient immobile depuis plus de " + immobileSeconds + " secondes."
             );
         }
     }
 
     private void createAlertIfNeeded(Long patientId, AlertType type, AlertSeverity severity, String message) {
-        LocalDateTime cooldownStart = LocalDateTime.now().minusMinutes(duplicateCooldownMinutes);
-        boolean existsRecentOpenAlert = movementAlertRepository
-                .existsByPatientIdAndAlertTypeAndAcknowledgedFalseAndCreatedAtAfter(patientId, type, cooldownStart);
+        createAlertIfNeeded(patientId, type, severity, message, false);
+    }
 
-        if (existsRecentOpenAlert) {
-            return;
+    private void createAlertIfNeeded(Long patientId, AlertType type, AlertSeverity severity, String message, boolean forceCreate) {
+        if (!forceCreate) {
+            LocalDateTime cooldownStart = LocalDateTime.now().minusMinutes(duplicateCooldownMinutes);
+            boolean existsRecentOpenAlert = movementAlertRepository
+                    .existsByPatientIdAndAlertTypeAndAcknowledgedFalseAndCreatedAtAfter(patientId, type, cooldownStart);
+
+            if (existsRecentOpenAlert) {
+                return;
+            }
         }
 
         MovementAlert alert = MovementAlert.builder()
@@ -247,6 +266,46 @@ public class MovementMonitoringService {
             saved.setEmailSent(true);
             movementAlertRepository.save(saved);
         }
+    }
+
+    private boolean isSimulationSource(String source) {
+        return source != null && source.startsWith("SIMULATION_");
+    }
+
+    private void createSimulationAlert(LocationPing current, LocationPing previous) {
+        String source = current.getSource() != null ? current.getSource() : "SIMULATION";
+
+        AlertType type;
+        AlertSeverity severity;
+        String message;
+
+        if (source.contains("OUT_OF_ZONE")) {
+            type = AlertType.OUT_OF_SAFE_ZONE;
+            severity = AlertSeverity.CRITICAL;
+            message = "Alerte test: sortie de zone simulee.";
+        } else if (source.contains("ABRUPT")) {
+            type = AlertType.RAPID_OR_UNUSUAL_MOVEMENT;
+            severity = AlertSeverity.WARNING;
+
+            if (previous != null) {
+                double displacementMeters = distanceMeters(
+                        previous.getLatitude(),
+                        previous.getLongitude(),
+                        current.getLatitude(),
+                        current.getLongitude()
+                );
+                message = "Alerte test: changement brusque simule (" + String.format("%.0f", displacementMeters) + " m).";
+            } else {
+                message = "Alerte test: changement brusque simule.";
+            }
+        } else {
+            type = AlertType.RAPID_OR_UNUSUAL_MOVEMENT;
+            severity = AlertSeverity.WARNING;
+            message = "Alerte test de mouvement simule.";
+        }
+
+        // Force a new alert for every simulation click so it appears in active alerts and triggers email each time.
+        createAlertIfNeeded(current.getPatientId(), type, severity, message, true);
     }
 
     private double calculateSpeedKmh(LocationPing prev, LocationPing current) {

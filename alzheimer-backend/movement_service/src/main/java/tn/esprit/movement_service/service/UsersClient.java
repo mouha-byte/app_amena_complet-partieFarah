@@ -34,6 +34,11 @@ public class UsersClient {
     public List<String> getCaregiverEmailsForPatient(Long patientUserId) {
         Optional<PatientLite> patient = getPatientByUserId(patientUserId);
         if (patient.isPresent()) {
+            UserLite linkedCaregiver = patient.get().getCaregiver();
+            if (linkedCaregiver != null && isValidEmail(linkedCaregiver.getEmail())) {
+                return List.of(linkedCaregiver.getEmail().trim());
+            }
+
             String emergencyContact = patient.get().getEmergencyContact();
             if (isValidEmail(emergencyContact)) {
                 return List.of(emergencyContact.trim());
@@ -67,22 +72,14 @@ public class UsersClient {
 
     private Optional<PatientLite> getPatientByUserId(Long patientUserId) {
         try {
-            String url = usersBaseUrl + "/patients";
-            ResponseEntity<List<PatientLite>> response = restTemplate.exchange(
+            String url = usersBaseUrl + "/patients/user/" + patientUserId;
+            ResponseEntity<PatientLite> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<PatientLite>>() {}
+                    new ParameterizedTypeReference<PatientLite>() {}
             );
-
-            if (response.getBody() == null) {
-                return Optional.empty();
-            }
-
-            return response.getBody().stream()
-                    .filter(p -> p.getUser() != null && p.getUser().getId() != null)
-                    .filter(p -> p.getUser().getId().equals(patientUserId))
-                    .findFirst();
+            return Optional.ofNullable(response.getBody());
         } catch (RestClientException ex) {
             return Optional.empty();
         }
@@ -134,6 +131,7 @@ public class UsersClient {
     public static class PatientLite {
         private Long id;
         private UserLite user;
+        private UserLite caregiver;
         private String emergencyContact;
 
         public Long getId() {
@@ -150,6 +148,14 @@ public class UsersClient {
 
         public void setUser(UserLite user) {
             this.user = user;
+        }
+
+        public UserLite getCaregiver() {
+            return caregiver;
+        }
+
+        public void setCaregiver(UserLite caregiver) {
+            this.caregiver = caregiver;
         }
 
         public String getEmergencyContact() {

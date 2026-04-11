@@ -23,6 +23,10 @@ public class Patient {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "caregiver_id", referencedColumnName = "id")
+    private User caregiver;
+
     private LocalDate dateOfBirth;
     private String address;
     private String emergencyContact;

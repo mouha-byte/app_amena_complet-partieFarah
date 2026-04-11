@@ -16,8 +16,12 @@ public class PatientController {
     private final PatientService patientService;
 
     @PostMapping
-    public Patient createPatient(@RequestBody Patient patient) {
-        return patientService.createPatient(patient);
+    public ResponseEntity<?> createPatient(@RequestBody Patient patient) {
+        try {
+            return ResponseEntity.ok(patientService.createPatient(patient));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping
@@ -32,10 +36,24 @@ public class PatientController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Patient> getPatientByUserId(@PathVariable("userId") Long userId) {
+        return patientService.getPatientByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/caregiver/{caregiverId}")
+    public List<Patient> getPatientsByCaregiver(@PathVariable("caregiverId") Long caregiverId) {
+        return patientService.getPatientsByCaregiverId(caregiverId);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Patient> updatePatient(@PathVariable("id") Long id, @RequestBody Patient patientDetails) {
+    public ResponseEntity<?> updatePatient(@PathVariable("id") Long id, @RequestBody Patient patientDetails) {
         try {
             return ResponseEntity.ok(patientService.updatePatient(id, patientDetails));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

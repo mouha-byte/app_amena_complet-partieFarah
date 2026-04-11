@@ -155,7 +155,25 @@
   box-sizing: border-box;
 }
 
+.form-group select {
+  width: 100%;
+  background: #16162a;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
 .form-group input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.form-group select:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
@@ -243,6 +261,13 @@
   font-size: 10px;
   color: #888;
   margin-top: 2px;
+}
+
+.helper-text {
+  display: block;
+  margin-top: 6px;
+  color: #8f95b2;
+  font-size: 11px;
 }
 
 /* Button */

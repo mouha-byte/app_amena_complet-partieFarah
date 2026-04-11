@@ -25,6 +25,7 @@ export class ResultsComponent implements OnInit {
   activeTab: 'results' | 'risk' = 'results';
   sendingEmail: { [id: number]: boolean } = {};
   emailMsg: { [id: number]: string } = {};
+  private caregiverPatientIds = new Set<number>();
 
   constructor(private grSvc: GameResultService, private auth: AuthService, private cdr: ChangeDetectorRef) {}
 
@@ -35,20 +36,72 @@ export class ResultsComponent implements OnInit {
 
   load() {
     this.loading = true;
+    if (this.user?.role === 'CAREGIVER') {
+      this.loadCaregiverScopedResults();
+      return;
+    }
+
+    this.caregiverPatientIds.clear();
+    this.loadResultsWithFilter((r: any) => {
+      if (this.user?.role === 'PATIENT') {
+        return Number(r.patientId) === Number(this.user.id);
+      }
+      return true;
+    });
+  }
+
+  private loadCaregiverScopedResults(): void {
+    const caregiverId = Number(this.user?.id || 0);
+    if (!caregiverId) {
+      this.results = [];
+      this.filtered = [];
+      this.patientSummaries = [];
+      this.loading = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.auth.getPatientsByCaregiver(caregiverId).subscribe({
+      next: (users: any[]) => {
+        this.caregiverPatientIds = this.extractPatientIds(users || []);
+        this.loadResultsWithFilter((r: any) => this.caregiverPatientIds.has(Number(r.patientId)));
+      },
+      error: () => {
+        this.results = [];
+        this.filtered = [];
+        this.patientSummaries = [];
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private loadResultsWithFilter(filterFn: (result: any) => boolean): void {
     this.grSvc.getAllResults().subscribe({
       next: (d: any) => {
-        let data = d || [];
-        if (this.user?.role === 'PATIENT') {
-          data = data.filter((r: any) => r.patientId === this.user.id);
-        }
-        this.results = data;
+        const allResults = d || [];
+        this.results = allResults.filter(filterFn);
         this.applyFilter();
         this.buildPatientSummaries();
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  private extractPatientIds(users: any[]): Set<number> {
+    const ids = new Set<number>();
+    for (const user of users) {
+      const id = Number(user?.id ?? user?.userId ?? 0);
+      if (id && !Number.isNaN(id)) {
+        ids.add(id);
+      }
+    }
+    return ids;
   }
 
   /** Build per-patient aggregated summaries from result data */

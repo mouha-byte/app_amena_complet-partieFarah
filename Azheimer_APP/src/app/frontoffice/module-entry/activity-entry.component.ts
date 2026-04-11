@@ -17,12 +17,12 @@ export class ActivityEntryComponent implements OnInit {
   ngOnInit(): void {
     const role = this.authService.getRole();
 
-    if (role === 'ADMIN' || role === 'DOCTOR') {
-      this.router.navigate(['/crud/activity/manage']);
+    if (role === 'DOCTOR' || role === 'CAREGIVER') {
+      this.router.navigate(['/crud/activity/results']);
       return;
     }
 
-    if (role === 'PATIENT' || role === 'CAREGIVER') {
+    if (role === 'ADMIN' || role === 'PATIENT') {
       this.router.navigate(['/crud/activity/play']);
       return;
     }

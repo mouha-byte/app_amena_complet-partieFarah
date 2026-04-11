@@ -25,14 +25,14 @@
   </article>
 
   <article class="picker-card" *ngIf="isAdminOrDoctor">
-    <label for="patientSelect">Patient suivi</label>
+    <label for="patientSelect">{{ isCaregiver ? 'Client rattaché' : 'Patient suivi' }}</label>
     <select id="patientSelect" [(ngModel)]="selectedPatientId" (ngModelChange)="onPatientChange()">
       <option *ngFor="let p of patients" [ngValue]="p.id">{{ p.firstname }} {{ p.lastname }} (#{{ p.id }})</option>
     </select>
   </article>
 
   <div class="cards-grid">
-    <article class="card latest-card">
+    <article class="card latest-card" *ngIf="!isAdmin">
       <h3>Derniere position</h3>
 
       <div *ngIf="latestLocation; else noLoc">
@@ -70,12 +70,32 @@
     <article class="card action-card" *ngIf="isPatient">
       <h3>Envoyer ma position</h3>
       <p class="hint">Le patient partage sa position. Le docteur et l'admin sont en mode consultation uniquement.</p>
-      <button type="button" class="btn primary" (click)="reportMyLiveGps()" [disabled]="reporting || backendOffline">
+
+      <div class="simulation-box">
+        <p class="sim-title">Test aléatoire: quitter la zone</p>
+        <small class="sim-preview">La position test est générée automatiquement (aucune saisie manuelle).</small>
+      </div>
+      
+      <button type="button" class="btn warning" style="margin-bottom: 5px; width: 100%;" (click)="testSimulationMigration()" [disabled]="reporting || backendOffline">
+        Tester : Quitter la zone (aléatoire)
+      </button>
+
+      <button type="button" class="btn primary" style="width: 100%; margin-bottom: 5px;" (click)="reportMyLiveGps()" [disabled]="reporting || backendOffline">
         {{ reporting ? 'Envoi en cours...' : 'Envoyer ma position GPS' }}
       </button>
+
+      <div class="simulation-box">
+        <p class="sim-title">Test aléatoire: changement brusque</p>
+        <small class="sim-preview">Le déplacement de test est généré automatiquement.</small>
+      </div>
+
+      <button type="button" class="btn danger" style="width: 100%;" (click)="testSimulationTeleportation()" [disabled]="reporting || backendOffline">
+        Tester : Changement brusque (aléatoire)
+      </button>
+
     </article>
 
-    <article class="card alert-card">
+    <article class="card alert-card" *ngIf="!isAdmin">
       <div class="card-head">
         <h3>Alertes actives</h3>
         <span class="badge">{{ alerts.length }}</span>
@@ -109,7 +129,7 @@
       </ng-template>
     </article>
 
-    <article class="card history-card">
+    <article class="card history-card" *ngIf="!isAdmin">
       <h3>Historique recent (4h)</h3>
 
       <div class="table-wrap" *ngIf="history.length; else noHistory">

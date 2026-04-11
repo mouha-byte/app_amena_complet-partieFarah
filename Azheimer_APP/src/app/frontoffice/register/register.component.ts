@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   firstname = '';
   lastname = '';
   email = '';
@@ -19,10 +20,14 @@ export class RegisterComponent {
   confirmPassword = '';
   phone = '';
   role = 'PATIENT';
+  caregiverId: number | null = null;
   errorMessage = '';
   successMessage = '';
   loading = false;
   showPassword = false;
+  caregiversLoading = false;
+  caregiverOptions: Array<{ id: number; label: string; email: string }> = [];
+  private readonly patientsApi = 'http://localhost:8086/patients';
 
   roles = [
     { value: 'PATIENT', label: '🧑 Patient', desc: 'Suivi cognitif personnel' },
@@ -31,9 +36,19 @@ export class RegisterComponent {
     { value: 'ADMIN', label: '👑 Administrateur', desc: 'Gestion complète' }
   ];
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private http: HttpClient) {
     if (this.authService.isLoggedIn) {
       this.router.navigate(['/']);
+    }
+  }
+
+  ngOnInit(): void {
+    this.loadCaregivers();
+  }
+
+  onRoleChange(): void {
+    if (this.role !== 'PATIENT') {
+      this.caregiverId = null;
     }
   }
 
@@ -56,6 +71,16 @@ export class RegisterComponent {
       return;
     }
 
+    if (this.role === 'PATIENT' && !this.caregiverId) {
+      this.errorMessage = 'Veuillez choisir un aidant depuis la liste.';
+      return;
+    }
+
+    if (this.role === 'PATIENT' && this.caregiverOptions.length === 0) {
+      this.errorMessage = 'Aucun aidant disponible pour créer un patient.';
+      return;
+    }
+
     this.loading = true;
 
     this.authService.register({
@@ -67,18 +92,18 @@ export class RegisterComponent {
       role: this.role
     }).subscribe({
       next: (response) => {
-        this.loading = false;
         if (response.success) {
           this.successMessage = 'Compte créé avec succès ! Redirection...';
-          setTimeout(() => {
-            const role = response.user?.role;
-            if (role === 'ADMIN' || role === 'DOCTOR') {
-              this.router.navigate(['/admin']);
-            } else {
-              this.router.navigate(['/']);
-            }
-          }, 1500);
+
+          if (this.role === 'PATIENT') {
+            this.createPatientProfile(response.user?.id ?? null, response.user?.role || this.role);
+            return;
+          }
+
+          this.loading = false;
+          this.redirectAfterRegister(response.user?.role);
         } else {
+          this.loading = false;
           this.errorMessage = response.message || 'Erreur lors de la création du compte.';
         }
       },
@@ -97,5 +122,70 @@ export class RegisterComponent {
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  private loadCaregivers(): void {
+    this.caregiversLoading = true;
+    this.authService.getAllUsers().subscribe({
+      next: (users: any[]) => {
+        this.caregiverOptions = (users || [])
+          .filter((u) => (u?.role || '').toUpperCase() === 'CAREGIVER')
+          .map((u) => {
+            const id = Number(u?.id ?? u?.userId ?? 0);
+            const firstname = (u?.firstname ?? u?.firstName ?? '').toString();
+            const lastname = (u?.lastname ?? u?.lastName ?? '').toString();
+            const email = (u?.email ?? '').toString();
+            const fullName = `${firstname} ${lastname}`.trim();
+            const label = fullName ? `${fullName} (${email})` : email;
+            return { id, label, email };
+          })
+          .filter((c) => c.id > 0);
+        this.caregiversLoading = false;
+      },
+      error: () => {
+        this.caregiverOptions = [];
+        this.caregiversLoading = false;
+      }
+    });
+  }
+
+  private createPatientProfile(patientUserId: number | null, registeredRole: string): void {
+    const selectedCaregiver = this.caregiverOptions.find((c) => c.id === this.caregiverId);
+
+    if (!patientUserId || !selectedCaregiver) {
+      this.loading = false;
+      this.errorMessage = 'Compte créé, mais liaison patient-aidant impossible.';
+      return;
+    }
+
+    const payload = {
+      user: { id: patientUserId },
+      caregiver: { id: selectedCaregiver.id },
+      emergencyContact: selectedCaregiver.email || '',
+      dateOfBirth: null,
+      address: '',
+      medicalHistory: ''
+    };
+
+    this.http.post(this.patientsApi, payload).subscribe({
+      next: () => {
+        this.loading = false;
+        this.redirectAfterRegister(registeredRole);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err?.error?.message || 'Compte créé, mais la liaison patient-aidant a échoué.';
+      }
+    });
+  }
+
+  private redirectAfterRegister(role?: string): void {
+    setTimeout(() => {
+      if (role === 'ADMIN' || role === 'DOCTOR' || role === 'CAREGIVER') {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/']);
+      }
+    }, 1500);
   }
 }

@@ -87,11 +87,21 @@
             <div class="role-selector">
               <label *ngFor="let r of roles" class="role-option"
                      [class.selected]="role === r.value">
-                <input type="radio" [(ngModel)]="role" name="role" [value]="r.value" />
+                <input type="radio" [(ngModel)]="role" name="role" [value]="r.value" (ngModelChange)="onRoleChange()" />
                 <span class="role-label">{{ r.label }}</span>
                 <span class="role-desc">{{ r.desc }}</span>
               </label>
             </div>
+          </div>
+
+          <div class="form-group" *ngIf="role === 'PATIENT'">
+            <label for="caregiverId">Aidant lié *</label>
+            <select id="caregiverId" [(ngModel)]="caregiverId" name="caregiverId" [disabled]="caregiversLoading || loading" required>
+              <option [ngValue]="null">Sélectionner un aidant</option>
+              <option *ngFor="let c of caregiverOptions" [ngValue]="c.id">{{ c.label }}</option>
+            </select>
+            <small class="helper-text" *ngIf="caregiversLoading">Chargement des aidants...</small>
+            <small class="helper-text" *ngIf="!caregiversLoading && !caregiverOptions.length">Aucun aidant disponible.</small>
           </div>
 
           <button type="submit" class="btn-register" [disabled]="loading">

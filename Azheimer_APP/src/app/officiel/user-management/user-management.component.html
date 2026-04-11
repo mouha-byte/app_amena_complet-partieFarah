@@ -9,7 +9,7 @@
   <div class="table-card" *ngIf="!showForm">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Rôle</th><th>Créé</th><th>Actions</th></tr></thead>
+        <thead><tr><th>#</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Rôle</th><th>Aidant lié</th><th>Créé</th><th>Actions</th></tr></thead>
         <tbody>
           <tr *ngFor="let u of users">
             <td>{{ u.id }}</td>
@@ -17,13 +17,14 @@
             <td>{{ u.email }}</td>
             <td>{{ u.phone || '-' }}</td>
             <td><span class="badge" [ngClass]="getRoleClass(u.role)">{{ getRoleBadge(u.role) }} {{ u.role }}</span></td>
+            <td>{{ getLinkedCaregiverLabel(u.id) }}</td>
             <td>{{ u.createdAt | date:'dd/MM/yyyy' }}</td>
             <td class="actions">
               <button class="btn-icon edit" (click)="openEdit(u)">✏️</button>
               <button class="btn-icon del" (click)="delete(u.id)">🗑️</button>
             </td>
           </tr>
-          <tr *ngIf="!users.length && !loading"><td colspan="7" class="empty">Aucun utilisateur</td></tr>
+          <tr *ngIf="!users.length && !loading"><td colspan="8" class="empty">Aucun utilisateur</td></tr>
         </tbody>
       </table>
     </div>
@@ -43,12 +44,22 @@
         <div class="field"><label>{{ editing ? 'Nouveau mot de passe' : 'Mot de passe *' }}</label><input type="password" [(ngModel)]="form.password" name="pw" [required]="!editing" /></div>
         <div class="field"><label>Téléphone</label><input type="tel" [(ngModel)]="form.phone" name="ph" /></div>
         <div class="field"><label>Rôle</label>
-          <select [(ngModel)]="form.role" name="role">
+          <select [(ngModel)]="form.role" name="role" (ngModelChange)="onRoleChange()">
             <option value="PATIENT">🧠 Patient</option>
             <option value="DOCTOR">🩺 Docteur</option>
             <option value="CAREGIVER">🤝 Aidant</option>
             <option value="ADMIN">🛡️ Admin</option>
           </select>
+        </div>
+        <div class="field" *ngIf="form.role === 'PATIENT'">
+          <label>Aidant lié *</label>
+          <select [(ngModel)]="form.caregiverId" name="caregiverId" required>
+            <option [ngValue]="null">Sélectionner un aidant</option>
+            <option *ngFor="let c of caregivers" [ngValue]="c.id">
+              {{ c.firstname }} {{ c.lastname }} ({{ c.email }})
+            </option>
+          </select>
+          <small *ngIf="!caregivers.length">Aucun aidant disponible. Créez d'abord un utilisateur CAREGIVER.</small>
         </div>
       </div>
       <div class="form-actions">

@@ -24,11 +24,20 @@
       </div>
       <div class="field"><label>Rôle</label>
         <div class="role-grid">
-          <div *ngFor="let r of roles" class="role-opt" [class.sel]="role===r.v" (click)="role=r.v">
-            <input type="radio" [(ngModel)]="role" name="role" [value]="r.v" />
+          <div *ngFor="let r of roles" class="role-opt" [class.sel]="role===r.v" (click)="role=r.v; onRoleChange()">
+            <input type="radio" [(ngModel)]="role" name="role" [value]="r.v" (ngModelChange)="onRoleChange()" />
             <div class="rl">{{r.l}}</div><div class="rd">{{r.d}}</div>
           </div>
         </div>
+      </div>
+      <div class="field" *ngIf="role === 'PATIENT'">
+        <label>Aidant lié *</label>
+        <select [(ngModel)]="caregiverId" name="caregiverId" [disabled]="caregiversLoading || loading" required>
+          <option [ngValue]="null">Sélectionner un aidant</option>
+          <option *ngFor="let c of caregiverOptions" [ngValue]="c.id">{{ c.label }}</option>
+        </select>
+        <small *ngIf="caregiversLoading" style="display:block;margin-top:6px;color:#8f95b2;font-size:11px;">Chargement des aidants...</small>
+        <small *ngIf="!caregiversLoading && !caregiverOptions.length" style="display:block;margin-top:6px;color:#8f95b2;font-size:11px;">Aucun aidant disponible.</small>
       </div>
       <button type="submit" class="btn-submit" [disabled]="loading">
         <span *ngIf="!loading">Créer mon compte</span><span *ngIf="loading" class="spin"></span>

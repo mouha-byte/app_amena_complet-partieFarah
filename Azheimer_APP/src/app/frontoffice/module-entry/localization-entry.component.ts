@@ -22,7 +22,7 @@ export class LocalizationEntryComponent implements OnInit {
       return;
     }
 
-    if (role === 'PATIENT') {
+    if (role === 'PATIENT' || role === 'CAREGIVER') {
       this.router.navigate(['/crud/localization/movement']);
       return;
     }
